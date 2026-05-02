@@ -1,0 +1,183 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Light mode ─────────────────────────────────────── */
+    --background: 0 0% 98%;
+    --foreground: 224 71% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 94%;
+    --secondary-foreground: 224 71% 4%;
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 9% 40%;
+    --accent: 220 14% 92%;
+    --accent-foreground: 224 71% 4%;
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 221 83% 53%;
+    --radius: 0.5rem;
+    /* Sidebar */
+    --sidebar-background: 220 14% 96%;
+    --sidebar-foreground: 224 71% 4%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 90%;
+    --sidebar-accent-foreground: 224 71% 4%;
+    --sidebar-border: 220 13% 88%;
+    --sidebar-ring: 221 83% 53%;
+  }
+
+  .dark {
+    /* ── Dark mode — zinc/slate palette ─────────────────── */
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --card: 222 47% 7%;
+    --card-foreground: 213 31% 91%;
+    --popover: 222 47% 7%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 221 83% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 28% 13%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 215 28% 13%;
+    --muted-foreground: 217 11% 55%;
+    --accent: 215 28% 17%;
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 28% 14%;
+    --input: 215 28% 14%;
+    --ring: 221 83% 60%;
+    /* Sidebar — slightly lighter than main bg */
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 213 31% 85%;
+    --sidebar-primary: 221 83% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 28% 13%;
+    --sidebar-accent-foreground: 213 31% 91%;
+    --sidebar-border: 215 28% 12%;
+    --sidebar-ring: 221 83% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply overflow-x-hidden;
+  }
+  body {
+    @apply bg-background text-foreground overflow-x-hidden;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    max-width: 100vw;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
+  }
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-700 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-zinc-600;
+}
+
+/* ─── Animations ────────────────────────────────────────── */
+.fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+  animation: slideIn 0.25s ease-out;
+}
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+/* ─── Status badges ─────────────────────────────────────── */
+.status-pending {
+  @apply bg-amber-500/10 text-amber-400 border border-amber-500/20;
+}
+.status-approved {
+  @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
+}
+.status-rejected {
+  @apply bg-red-500/10 text-red-400 border border-red-500/20;
+}
+.status-issued {
+  @apply bg-blue-500/10 text-blue-400 border border-blue-500/20;
+}
+.status-returned {
+  @apply bg-zinc-500/10 text-zinc-400 border border-zinc-500/20;
+}
+.status-overdue {
+  @apply bg-red-500/10 text-red-400 border border-red-500/20 animate-pulse;
+}
+
+/* ─── Card hover glow ───────────────────────────────────── */
+.card-hover {
+  @apply transition-all duration-200;
+}
+.card-hover:hover {
+  @apply shadow-lg shadow-black/20 border-zinc-600/60;
+}
+
+/* ─── Sidebar nav item ──────────────────────────────────── */
+.nav-item {
+  @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+         text-zinc-400 transition-all duration-150
+         hover:bg-white/5 hover:text-zinc-100;
+}
+.nav-item.active {
+  @apply bg-blue-600/15 text-blue-400 border border-blue-500/20;
+}
+
+/* ─── Glass card ────────────────────────────────────────── */
+.glass-card {
+  @apply bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm;
+}
+
+/* ─── Stat card accent bar ──────────────────────────────── */
+.stat-card {
+  @apply relative overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/60;
+}
+.stat-card::after {
+  content: '';
+  @apply absolute bottom-0 left-0 right-0 h-[2px];
+}
+
+/* ─── Focus ring ────────────────────────────────────────── */
+:focus-visible {
+  @apply outline-none ring-2 ring-blue-500/50 ring-offset-2 ring-offset-zinc-950;
+}
+
+
+/* ─── Prevent horizontal overflow ───────────────────────── */
+#__next,
+[data-nextjs-scroll-focus-boundary] {
+  @apply overflow-x-hidden max-w-full;
+}

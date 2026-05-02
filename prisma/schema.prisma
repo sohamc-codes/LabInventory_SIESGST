@@ -1,0 +1,300 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Organization {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  domain          String?  @unique
+  plan            String   @default("STARTER") // STARTER, PROFESSIONAL, ENTERPRISE
+  status          String   @default("ACTIVE") // ACTIVE, SUSPENDED, CANCELLED
+  maxUsers        Int      @default(50)
+  maxComponents   Int      @default(500)
+  billingEmail    String?
+  subscriptionId  String?
+  trialEndsAt     DateTime?
+  settings        String?  // JSON string for org settings
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  users       User[]
+  components  Component[]
+  invitations OrganizationInvitation[]
+
+  @@map("organizations")
+}
+
+model OrganizationInvitation {
+  id             String   @id @default(cuid())
+  organizationId String
+  email          String
+  role           String
+  token          String   @unique
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("organization_invitations")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  image          String?
+  password       String?   // Optional: for Lab Assistants using credentials auth
+  role           String    @default("STUDENT") // STUDENT, LAB_ASSISTANT, HOD, ADMIN, OWNER
+  organizationId String?
+  prn            String?   @unique // Student PRN
+  department     String?
+  year           String?
+  isActive       Boolean   @default(true)
+  lastActivity   DateTime?
+  onboardedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  accounts     Account[]
+  sessions     Session[]
+  requests     ComponentRequest[]
+  issuedItems  IssuedComponent[]
+  auditLogs    AuditLog[]
+  projects     Project[]
+
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  studentId   String
+  name        String
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  status      String   @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  student  User               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  requests ComponentRequest[]
+
+  @@map("projects")
+}
+
+model Component {
+  id                String   @id @default(cuid())
+  organizationId    String
+  serialNumber      String?
+  qrCode            String?
+  name              String
+  category          String   // SENSOR, IC, MODULE, WIRE, TOOL, RESISTOR, CAPACITOR, TRANSISTOR, DIODE, MICROCONTROLLER, BREADBOARD, OTHER
+  manufacturer      String?
+  model             String?
+  specifications    String?
+  totalStock        Int      @map("total_stock")
+  availableStock    Int      @map("available_stock")
+  condition         String   @default("NEW") // NEW, GOOD, WORN, DAMAGED, LOST
+  purchaseDate      DateTime?
+  cost              Float?
+  storageLocation   String?
+  imageUrl          String?
+  description       String?
+  isActive          Boolean  @default(true)
+  lastScanned       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  requests       ComponentRequest[]
+  issuedItems    IssuedComponent[]
+  stockMovements StockMovement[]
+
+  @@map("components")
+}
+
+model ComponentRequest {
+  id              String   @id @default(cuid())
+  studentId       String
+  componentId     String
+  projectId       String?  // Optional: link to project or "OTHER" for single parts
+  quantity        Int
+  purpose         String
+  expectedDuration Int     // in days
+  startDate       DateTime? // When student needs the component
+  endDate         DateTime? // When student will return it
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED, ISSUED, RETURNED, OVERDUE, CLOSED
+  approvedBy      String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  student   User      @relation(fields: [studentId], references: [id])
+  component Component @relation(fields: [componentId], references: [id])
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  issuedItem IssuedComponent?
+
+  @@index([status])
+  @@index([studentId])
+  @@map("component_requests")
+}
+
+model IssuedComponent {
+  id              String   @id @default(cuid())
+  requestId       String?  @unique
+  studentId       String
+  componentId     String
+  quantity        Int      @map("quantity_issued")
+  issuedBy        String?
+  issuedAt        DateTime @default(now()) @map("issued_at")
+  expectedReturnDate DateTime
+  actualReturnDate DateTime?
+  returnedQuantity Int?
+  conditionOnIssue String  // NEW, GOOD, WORN, DAMAGED, LOST
+  conditionOnReturn String? // NEW, GOOD, WORN, DAMAGED, LOST
+  notes           String?
+  isReturned      Boolean  @default(false)
+  // New fields for return system
+  status          String   @default("ACTIVE") // ACTIVE, RETURNED
+  returnScheduledAt DateTime?
+  returnDeadline  DateTime?
+  returnedAt      DateTime?
+  returnedBy      String?
+  purpose         String?
+  condition       String   @default("NEW") // NEW, GOOD, WORN, DAMAGED
+  returnCondition String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  request   ComponentRequest? @relation(fields: [requestId], references: [id])
+  student   User             @relation(fields: [studentId], references: [id])
+  component Component        @relation(fields: [componentId], references: [id])
+
+  @@index([studentId])
+  @@map("issued_components")
+}
+
+model StockMovement {
+  id          String   @id @default(cuid())
+  componentId String
+  type        String   // IN, OUT, ADJUSTMENT
+  quantity    Int
+  reason      String
+  performedBy String
+  createdAt   DateTime @default(now())
+
+  component Component @relation(fields: [componentId], references: [id])
+
+  @@map("stock_movements")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  resource  String
+  details   String?  // JSON string
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  title     String
+  message   String
+  type      String   @default("INFO") // INFO, WARNING, ERROR, SUCCESS, RETURN_SCHEDULED, RETURN_OVERDUE, RETURN_CONFIRMED
+  isRead    Boolean  @default(false)
+  data      String?  // JSON string for additional data
+  targetRole String? // STUDENT, LAB_ASSISTANT, HOD, ADMIN
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+model ComponentHistory {
+  id              String   @id @default(cuid())
+  componentId     String
+  studentId       String
+  quantity        Int
+  issuedAt        DateTime
+  expectedReturnDate DateTime
+  returnedAt      DateTime?
+  returnedBy      String?
+  purpose         String?
+  condition       String
+  returnCondition String?
+  issuedBy        String
+  notes           String?
+  migratedAt      DateTime
+  createdAt       DateTime @default(now())
+
+  @@map("component_history")
+}
+
+model SpecialPartRequest {
+  id              String   @id @default(cuid())
+  studentId       String
+  partName        String
+  description     String
+  quantity        Int      @default(1)
+  estimatedPrice  Float?
+  websiteUrl      String?
+  imageUrls       String?  // JSON array of image URLs
+  purpose         String
+  projectId       String?
+  status          String   @default("PENDING") // PENDING, UNDER_REVIEW, APPROVED, REJECTED, ORDERED, RECEIVED
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  rejectionReason String?
+  notes           String?  // Admin notes
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("special_part_requests")
+}

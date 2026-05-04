@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 const updateComponentSchema = z.object({
   name: z.string().min(1).optional(),
-  category: z.enum(['SENSOR', 'IC', 'MODULE', 'WIRE', 'TOOL', 'RESISTOR', 'CAPACITOR', 'TRANSISTOR', 'DIODE', 'MICROCONTROLLER', 'BREADBOARD', 'OTHER']).optional(),
+  category: z.string().min(1, 'Category is required').optional(),
   manufacturer: z.string().optional(),
   specifications: z.string().optional(),
   totalStock: z.number().min(0).optional(),

@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 const createComponentSchema = z.object({
   name: z.string().min(1, 'Component name is required'),
-  category: z.enum(['SENSOR', 'IC', 'MODULE', 'WIRE', 'TOOL', 'RESISTOR', 'CAPACITOR', 'TRANSISTOR', 'DIODE', 'MICROCONTROLLER', 'BREADBOARD', 'OTHER']),
+  category: z.string().min(1, 'Category is required'),
   manufacturer: z.string().optional(),
   specifications: z.string().optional(),
   totalStock: z.number().min(0, 'Quantity must be at least 0'),

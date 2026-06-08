@@ -39,6 +39,7 @@ interface Student {
   prn: string | null
   email: string
   department: string | null
+  isPrnVerified: boolean
   issuedItems: ActiveIssue[]
 }
 
@@ -56,9 +57,11 @@ interface ApprovedRequest {
 function StudentCard({
   student,
   onClear,
+  onVerify,
 }: {
   student: Student
   onClear: () => void
+  onVerify: () => void
 }) {
   return (
     <Card className="border-primary/20 bg-primary/5">
@@ -78,6 +81,32 @@ function StudentCard({
           <span>· {student.email}</span>
         </div>
       </CardHeader>
+
+      {/* Verification Warning */}
+      {!student.isPrnVerified && (
+        <CardContent className="pb-3">
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900">
+            <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-amber-900 dark:text-amber-100 mb-1">
+                PRN Not Verified
+              </p>
+              <p className="text-xs text-amber-800 dark:text-amber-200 mb-2">
+                This student's PRN has not been verified yet. Please verify their ID card before issuing components.
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={onVerify}
+                className="h-7 text-xs border-amber-300 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+              >
+                <CheckCircle className="h-3 w-3 mr-1.5" />
+                Verify Student
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      )}
 
       {student.issuedItems.length > 0 && (
         <CardContent>
@@ -206,6 +235,7 @@ export default function IssueComponentsPage() {
   const [isSearching, setIsSearching] = useState(false)
   const [isLoadingRequests, setIsLoadingRequests] = useState(false)
   const [issuingId, setIssuingId] = useState<string | null>(null)
+  const [isVerifying, setIsVerifying] = useState(false)
 
   // Auth guard — only LAB_ASSISTANT and HOD
   useEffect(() => {
@@ -331,6 +361,34 @@ export default function IssueComponentsPage() {
     }
   }
 
+  // Verify a student's PRN
+  const handleVerify = async () => {
+    if (!student) return
+    
+    setIsVerifying(true)
+    try {
+      const res = await fetch(`/api/users/${student.id}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        toast.error(data.error || 'Verification failed')
+        return
+      }
+      
+      toast.success(`${student.name} verified successfully`)
+      
+      // Update student state to reflect verification
+      setStudent((prev) => prev ? { ...prev, isPrnVerified: true } : null)
+    } catch {
+      toast.error('Network error — please try again')
+    } finally {
+      setIsVerifying(false)
+    }
+  }
+
   if (!session?.user) return null
 
   return (
@@ -450,7 +508,7 @@ export default function IssueComponentsPage() {
             {/* ── Step 2: Student card + approved requests ───── */}
             {student && (
               <>
-                <StudentCard student={student} onClear={clearStudent} />
+                <StudentCard student={student} onClear={clearStudent} onVerify={handleVerify} />
 
                 <Card>
                   <CardHeader>

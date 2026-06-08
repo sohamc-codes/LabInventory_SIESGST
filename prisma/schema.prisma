@@ -89,6 +89,7 @@ model User {
   department     String?
   year           String?
   isActive       Boolean   @default(true)
+  isPrnVerified  Boolean   @default(false) // PRN verified via bulk import or admin
   lastActivity   DateTime?
   onboardedAt    DateTime?
   createdAt      DateTime  @default(now())

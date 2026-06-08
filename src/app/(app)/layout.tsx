@@ -1,8 +1,17 @@
+import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { Sidebar } from '@/components/layout/sidebar'
 import { AIAssistant } from '@/components/features/ai-assistant'
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth()
+
+  // Onboarding gatekeeper - redirect STUDENT users with null PRN to onboarding
+  if (session?.user?.role === 'STUDENT' && !session.user.prn) {
+    redirect('/onboarding')
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-background max-w-full">
       <Sidebar />

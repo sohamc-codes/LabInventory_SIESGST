@@ -5,13 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import { AlertCircle, CheckCircle } from 'lucide-react'
 
 export function PartsIssuedClient() {
   const prnRef = useRef<HTMLInputElement>(null)
   const [prn, setPrn] = useState('')
   const [student, setStudent] = useState<any>(null)
   const [issuedParts, setIssuedParts] = useState<any[]>([])
+  const [isVerifying, setIsVerifying] = useState(false)
 
   useEffect(() => {
     prnRef.current?.focus()
@@ -37,6 +40,33 @@ export function PartsIssuedClient() {
     setIssuedParts(partsData.issuedParts || [])
   }
 
+  const handleVerify = async () => {
+    if (!student) return
+    
+    setIsVerifying(true)
+    try {
+      const res = await fetch(`/api/users/${student.id}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        toast.error(data.error || 'Verification failed')
+        return
+      }
+      
+      toast.success(`${student.name} verified successfully`)
+      
+      // Update student state to reflect verification
+      setStudent((prev: any) => prev ? { ...prev, isPrnVerified: true } : null)
+    } catch {
+      toast.error('Network error — please try again')
+    } finally {
+      setIsVerifying(false)
+    }
+  }
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <Card>
@@ -53,7 +83,52 @@ export function PartsIssuedClient() {
             />
             <Button type="submit">Fetch Active</Button>
           </form>
-          {student && <p className="mt-3 text-sm font-medium">{student.name} ({student.prn})</p>}
+          {student && (
+            <div className="mt-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">
+                  {student.name} ({student.prn})
+                  {student.department && <span className="text-muted-foreground ml-2">· {student.department}</span>}
+                </p>
+                {student.isPrnVerified ? (
+                  <Badge variant="secondary" className="text-xs">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Verified
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 dark:border-amber-800 dark:text-amber-400">
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                    Not Verified
+                  </Badge>
+                )}
+              </div>
+              
+              {/* Verification Warning */}
+              {!student.isPrnVerified && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900">
+                  <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-amber-900 dark:text-amber-100 mb-1">
+                      PRN Not Verified
+                    </p>
+                    <p className="text-xs text-amber-800 dark:text-amber-200 mb-2">
+                      This student's PRN has not been verified yet. Please verify their ID card before processing returns.
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleVerify}
+                      disabled={isVerifying}
+                      className="h-7 text-xs border-amber-300 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                    >
+                      <CheckCircle className="h-3 w-3 mr-1.5" />
+                      {isVerifying ? 'Verifying...' : 'Verify Student'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 

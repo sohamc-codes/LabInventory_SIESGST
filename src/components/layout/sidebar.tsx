@@ -20,6 +20,7 @@ import {
   Sparkles,
   ChevronRight,
   X,
+  FileUp,
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -62,6 +63,7 @@ export function Sidebar({ className }: SidebarProps) {
           { title: 'Issue Components', href: '/issue-components',  icon: PackageCheck },
           { title: 'Parts Issued',     href: '/parts-issued',      icon: PackageCheck },
           { title: 'All Requests',     href: '/requests/all',      icon: ClipboardList },
+          { title: 'Import PRN List',  href: '/users/import',      icon: FileUp },
         ]
 
       case 'HOD':
@@ -71,6 +73,7 @@ export function Sidebar({ className }: SidebarProps) {
           { title: 'Inventory',         href: '/inventory/manage',  icon: Package },
           { title: 'All Requests',      href: '/requests/all',      icon: ClipboardList },
           { title: 'User Management',   href: '/users',             icon: Users },
+          { title: 'Import PRN List',   href: '/users/import',      icon: FileUp },
           { title: 'Reports',           href: '/reports',           icon: BarChart3 },
         ]
 
@@ -82,6 +85,7 @@ export function Sidebar({ className }: SidebarProps) {
           { title: 'Parts Issued',     href: '/parts-issued',      icon: PackageCheck },
           { title: 'All Requests',     href: '/requests/all',      icon: ClipboardList },
           { title: 'User Management',  href: '/users',             icon: Users },
+          { title: 'Import PRN List',  href: '/users/import',      icon: FileUp },
           { title: 'Reports',          href: '/reports',           icon: BarChart3 },
         ]
 

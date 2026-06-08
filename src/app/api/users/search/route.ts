@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
         prn: true,
         email: true,
         department: true,
+        isPrnVerified: true,
         issuedItems: {
           where: { status: 'ACTIVE' },
           select: {

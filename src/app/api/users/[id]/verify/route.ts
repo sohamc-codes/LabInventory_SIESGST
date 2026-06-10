@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 // POST /api/users/[id]/verify - Verify a student's PRN
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Authentication check
@@ -23,7 +23,7 @@ export async function POST(
       )
     }
 
-    const userId = params.id
+   const { id: userId } = await params
 
     // Check if user exists
     const user = await prisma.user.findUnique({

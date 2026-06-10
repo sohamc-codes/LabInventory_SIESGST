@@ -4,6 +4,10 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 import { Providers } from '@/components/providers'
 import ErrorBoundary from '@/components/error-boundary'
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: {
@@ -60,7 +64,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, "font-sans", geist.variable)}>
       <body className="font-sans antialiased bg-background text-foreground overflow-x-hidden">
         <ErrorBoundary>
           <Providers>

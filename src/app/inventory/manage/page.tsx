@@ -522,8 +522,7 @@ export default function ManageInventoryPage() {
               Are you sure you want to delete <strong>{selectedComponent?.name}</strong>?
               <br />
               <br />
-              This is a soft delete - the component will be marked as inactive and hidden from the list.
-              It cannot be undone via the UI but the data remains in the database.
+              The component will be removed from the inventory list. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3">

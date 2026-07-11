@@ -80,6 +80,7 @@ export async function GET(request: NextRequest) {
           name: true,
           category: true,
           manufacturer: true,
+          specifications: true,
           totalStock: true,
           availableStock: true,
           condition: true,
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest) {
           serialNumber: true,
           qrCode: true,
           isActive: true,
-          // Omit: specifications, description (large text, fetched on detail view)
+          description: true,
         },
       }),
       prisma.component.count({ where }),

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Header } from '@/components/layout/header'
 import { Sidebar } from '@/components/layout/sidebar'
+import { toast } from 'sonner'
 import {
   Search,
   Package,
@@ -27,6 +28,7 @@ import {
   Target,
   Calendar,
   User,
+  Loader2,
 } from 'lucide-react'
 import { useComponents } from '@/lib/hooks/use-components'
 import { useCreateRequest } from '@/lib/hooks/use-requests'
@@ -61,6 +63,7 @@ export default function NewRequestPage() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [loadingProjects, setLoadingProjects] = useState(true)
+  const [isCreatingProject, setIsCreatingProject] = useState(false)
 
   const { data: componentsData, isLoading } = useComponents({
     search: searchTerm,
@@ -199,7 +202,7 @@ export default function NewRequestPage() {
 
   const handleSubmit = async () => {
     if (selectedComponents.length === 0) {
-      alert('Please select at least one component')
+      toast.error('Please select at least one component')
       return
     }
 
@@ -207,11 +210,11 @@ export default function NewRequestPage() {
     if (selectedProject === 'OTHER') {
       // For "Other": require purpose and dates
       if (purpose.length < 10) {
-        alert('Please provide a detailed purpose (at least 10 characters)')
+        toast.error('Please provide a detailed purpose (at least 10 characters)')
         return
       }
       if (!startDate || !endDate) {
-        alert('Please select start and end dates')
+        toast.error('Please select start and end dates')
         return
       }
     }
@@ -245,9 +248,11 @@ export default function NewRequestPage() {
         })
       }
 
+      toast.success('Request submitted successfully')
       router.push('/requests/my-requests')
     } catch (error) {
       console.error('Error submitting requests:', error)
+      toast.error('Failed to submit request')
     } finally {
       setIsSubmitting(false)
     }
@@ -255,9 +260,11 @@ export default function NewRequestPage() {
 
   const handleCreateProject = async () => {
     if (!newProjectName.trim()) {
-      alert('Please enter a project name')
+      toast.error('Please enter a project name')
       return
     }
+
+    setIsCreatingProject(true)
 
     try {
       const response = await fetch('/api/projects', {
@@ -280,14 +287,16 @@ export default function NewRequestPage() {
         setNewProjectDescription('')
         setStartDate('')
         setEndDate('')
-        alert('Project created successfully!')
+        toast.success('Project created successfully!')
       } else {
         const error = await response.json()
-        alert(`Failed to create project: ${error.error || 'Unknown error'}`)
+        toast.error(`Failed to create project: ${error.error || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error creating project:', error)
-      alert('Failed to create project. Please try again.')
+      toast.error('Failed to create project. Please try again.')
+    } finally {
+      setIsCreatingProject(false)
     }
   }
 
@@ -860,7 +869,7 @@ export default function NewRequestPage() {
                       >
                         {isSubmitting ? (
                           <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                             Submitting Request...
                           </>
                         ) : (
@@ -971,10 +980,17 @@ export default function NewRequestPage() {
                   </Button>
                   <Button
                     onClick={handleCreateProject}
-                    disabled={!newProjectName.trim()}
+                    disabled={!newProjectName.trim() || isCreatingProject}
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
                   >
-                    Create Project
+                    {isCreatingProject ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      'Create Project'
+                    )}
                   </Button>
                 </div>
               </div>

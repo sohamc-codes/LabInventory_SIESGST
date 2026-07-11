@@ -170,10 +170,6 @@ export default function ManageInventoryPage() {
       toast.error('Failed to delete component')
     }
   }
-    } catch (error) {
-      toast.error('Failed to adjust stock')
-    }
-  }
 
   if (dataLoading) {
     return (

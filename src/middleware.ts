@@ -66,6 +66,14 @@ export default auth((req) => {
   if (session) {
     const userRole = session.user?.role
 
+    // Enforce PRN requirement for STUDENT role before accessing protected routes
+    if (userRole === 'STUDENT' && !session.user?.prn) {
+      // Allow access to onboarding and auth routes
+      if (!pathname.startsWith('/onboarding') && !pathname.startsWith('/auth') && !pathname.startsWith('/api/users/onboard')) {
+        return NextResponse.redirect(new URL('/onboarding', req.url))
+      }
+    }
+
     // LAB_ASSISTANT, HOD, and ADMIN routes
     if (pathname.startsWith('/approvals') && !['LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(userRole as string)) {
       return NextResponse.redirect(new URL('/unauthorized', req.url))

@@ -67,6 +67,16 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Update the related ComponentRequest status to RETURNED
+    if (issuedComponent.requestId) {
+      await prisma.componentRequest.update({
+        where: { id: issuedComponent.requestId },
+        data: {
+          status: 'RETURNED'
+        }
+      })
+    }
+
     // Create audit log if we have a lab assistant
     if (labAssistant) {
       await prisma.auditLog.create({

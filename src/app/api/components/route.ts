@@ -144,26 +144,50 @@ export async function POST(request: NextRequest) {
 
     console.log('Creating component with organizationId:', organization.id)
 
-    const component = await prisma.component.create({
-      data: {
-        ...validatedData,
+    // Check for existing component with same name and category (case-insensitive)
+    const existingComponent = await prisma.component.findFirst({
+      where: {
+        name: { equals: validatedData.name, mode: 'insensitive' },
+        category: { equals: validatedData.category, mode: 'insensitive' },
         organizationId: organization.id,
-        serialNumber: null,
-        qrCode: null,
-        totalStock: validatedData.totalStock,
-        availableStock: validatedData.totalStock,
-        purchaseDate: validatedData.purchaseDate ? new Date(validatedData.purchaseDate) : null,
+        isActive: true,
       },
     })
 
-    console.log('Component created successfully:', component.id)
+    let component
+    if (existingComponent) {
+      // Update existing component stock
+      console.log('Found existing component, updating stock:', existingComponent.id)
+      component = await prisma.component.update({
+        where: { id: existingComponent.id },
+        data: {
+          totalStock: existingComponent.totalStock + validatedData.totalStock,
+          availableStock: existingComponent.availableStock + validatedData.totalStock,
+        },
+      })
+    } else {
+      // Create new component
+      component = await prisma.component.create({
+        data: {
+          ...validatedData,
+          organizationId: organization.id,
+          serialNumber: null,
+          qrCode: null,
+          totalStock: validatedData.totalStock,
+          availableStock: validatedData.totalStock,
+          purchaseDate: validatedData.purchaseDate ? new Date(validatedData.purchaseDate) : null,
+        },
+      })
+    }
+
+    console.log('Component created/updated successfully:', component.id)
 
     // Log the creation
     try {
       await prisma.auditLog.create({
         data: {
           userId: session.user.id,
-          action: 'CREATE_COMPONENT',
+          action: existingComponent ? 'UPDATE_COMPONENT_STOCK' : 'CREATE_COMPONENT',
           resource: 'COMPONENT',
           details: JSON.stringify({ componentId: component.id }),
         },
@@ -179,7 +203,7 @@ export async function POST(request: NextRequest) {
           componentId: component.id,
           type: 'IN',
           quantity: validatedData.totalStock,
-          reason: 'Initial stock',
+          reason: existingComponent ? 'Stock addition to existing component' : 'Initial stock',
           performedBy: session.user.id,
         },
       })

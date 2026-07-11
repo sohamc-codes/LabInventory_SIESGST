@@ -23,8 +23,20 @@ export default function ManageInventoryPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showAdjustDialog, setShowAdjustDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [selectedComponent, setSelectedComponent] = useState<any>(null)
   const [newTotalStock, setNewTotalStock] = useState(0)
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    category: '',
+    manufacturer: '',
+    specifications: '',
+    cost: 0,
+    storageLocation: '',
+    condition: 'NEW',
+    description: '',
+  })
   const [newComponent, setNewComponent] = useState({
     name: '',
     category: 'SENSOR',
@@ -106,6 +118,58 @@ export default function ManageInventoryPage() {
       setShowAdjustDialog(false)
       setSelectedComponent(null)
       refetch()
+    } catch (error) {
+      toast.error('Failed to adjust stock')
+    }
+  }
+
+  const handleEditComponent = async () => {
+    if (!selectedComponent) return
+    
+    try {
+      const response = await fetch(`/api/components/${selectedComponent.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editFormData),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to update component')
+        return
+      }
+
+      toast.success('Component updated successfully')
+      setShowEditDialog(false)
+      setSelectedComponent(null)
+      refetch()
+    } catch (error) {
+      toast.error('Failed to update component')
+    }
+  }
+
+  const handleDeleteComponent = async () => {
+    if (!selectedComponent) return
+    
+    try {
+      const response = await fetch(`/api/components/${selectedComponent.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to delete component')
+        return
+      }
+
+      toast.success('Component deleted successfully')
+      setShowDeleteDialog(false)
+      setSelectedComponent(null)
+      refetch()
+    } catch (error) {
+      toast.error('Failed to delete component')
+    }
+  }
     } catch (error) {
       toast.error('Failed to adjust stock')
     }
@@ -205,6 +269,27 @@ export default function ManageInventoryPage() {
                                 <div className="flex gap-2">
                                   <Button
                                     size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setSelectedComponent(component)
+                                      setEditFormData({
+                                        name: component.name,
+                                        category: component.category,
+                                        manufacturer: component.manufacturer || '',
+                                        specifications: component.specifications || '',
+                                        cost: component.cost || 0,
+                                        storageLocation: component.storageLocation || '',
+                                        condition: component.condition,
+                                        description: component.description || '',
+                                      })
+                                      setShowEditDialog(true)
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
                                     onClick={() => {
                                       setSelectedComponent(component)
                                       setNewTotalStock(component.totalStock)
@@ -213,6 +298,16 @@ export default function ManageInventoryPage() {
                                   >
                                     <span className="hidden sm:inline">Adjust Stock</span>
                                     <span className="sm:hidden">Adjust</span>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => {
+                                      setSelectedComponent(component)
+                                      setShowDeleteDialog(true)
+                                    }}
+                                  >
+                                    Delete
                                   </Button>
                                 </div>
                               </TableCell>
@@ -343,6 +438,105 @@ export default function ManageInventoryPage() {
               onChange={(e) => setNewTotalStock(Number(e.target.value) || 0)}
             />
             <Button onClick={handleAdjustStock} className="w-full">Update Total Stock</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="w-[95vw] max-w-2xl sm:w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Component</DialogTitle>
+            <DialogDescription>Update component details for {selectedComponent?.name}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Name</label>
+              <Input
+                value={editFormData.name}
+                onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Category</label>
+              <Input
+                value={editFormData.category}
+                onChange={(e) => setEditFormData({ ...editFormData, category: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Manufacturer</label>
+              <Input
+                value={editFormData.manufacturer}
+                onChange={(e) => setEditFormData({ ...editFormData, manufacturer: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Cost</label>
+              <Input
+                type="number"
+                value={editFormData.cost}
+                onChange={(e) => setEditFormData({ ...editFormData, cost: Number(e.target.value) || 0 })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Storage Location</label>
+              <Input
+                value={editFormData.storageLocation}
+                onChange={(e) => setEditFormData({ ...editFormData, storageLocation: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Condition</label>
+              <select
+                value={editFormData.condition}
+                onChange={(e) => setEditFormData({ ...editFormData, condition: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md"
+              >
+                <option value="NEW">NEW</option>
+                <option value="GOOD">GOOD</option>
+                <option value="WORN">WORN</option>
+                <option value="DAMAGED">DAMAGED</option>
+                <option value="LOST">LOST</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Specifications</label>
+              <Input
+                value={editFormData.specifications}
+                onChange={(e) => setEditFormData({ ...editFormData, specifications: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Description</label>
+              <Input
+                value={editFormData.description}
+                onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+              />
+            </div>
+            <Button onClick={handleEditComponent} className="w-full">Save Changes</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="w-[95vw] max-w-md sm:w-full p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle>Delete Component</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete <strong>{selectedComponent?.name}</strong>?
+              <br />
+              <br />
+              This is a soft delete - the component will be marked as inactive and hidden from the list.
+              It cannot be undone via the UI but the data remains in the database.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="flex-1">
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteComponent} className="flex-1">
+              Delete
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

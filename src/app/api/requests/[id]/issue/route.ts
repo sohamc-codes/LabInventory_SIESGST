@@ -91,7 +91,8 @@ export async function POST(
       // Step 2 — Guard: ensure stock is still sufficient at commit time
       if (component.availableStock < componentRequest.quantity) {
         throw new Error(
-          `Insufficient stock: ${component.availableStock} available, ${componentRequest.quantity} requested`
+          `Insufficient stock: ${component.availableStock} available, ${componentRequest.quantity} requested. ` +
+          `Stock may have been depleted since approval time.`
         )
       }
 

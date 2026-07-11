@@ -17,6 +17,7 @@ interface Component {
   imageUrl?: string
   serialNumber?: string | null
   qrCode?: string | null
+  description?: string
   createdAt: string
   updatedAt: string
 }

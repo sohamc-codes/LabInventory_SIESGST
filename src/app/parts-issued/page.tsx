@@ -10,26 +10,24 @@ export const dynamic = 'force-dynamic'
 export default async function PartsIssuedPage() {
   const session = await auth()
 
-  // Auth guard — LAB_ASSISTANT, HOD, and ADMIN only
+  // Auth guard
   if (!session) {
     redirect('/auth/signin')
   }
 
-  // Redirect students to their dashboard instead of showing unauthorized page
-  if (!['LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(session.user.role)) {
-    redirect('/dashboard/student')
-  }
+  const isStudent = session.user.role === 'STUDENT'
+  const isStaff = ['LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(session.user.role)
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header
-          title="Return Components"
-          subtitle="Process returns and track active component checkouts"
+          title={isStudent ? "My Issued Components" : "Return Components"}
+          subtitle={isStudent ? "Track your borrowed components and upcoming returns" : "Process returns and track active component checkouts"}
         />
         <main className="flex-1 overflow-y-auto p-6">
-          <PartsIssuedClient />
+          <PartsIssuedClient userRole={session.user.role} userPrn={session.user.prn} />
         </main>
       </div>
     </div>

@@ -1,8 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
+    // ✅ SECURITY FIX: Add authentication check
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // ✅ SECURITY FIX: Add role-based authorization (only lab staff can mark returns)
+    if (!['LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(session.user.role)) {
+      return NextResponse.json(
+        { error: 'Forbidden - Only lab staff can mark components as returned' },
+        { status: 403 }
+      )
+    }
+
     const { partId } = await request.json()
 
     if (!partId) {
@@ -35,12 +50,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get a lab assistant for audit purposes (or use system)
-    const labAssistant = await prisma.user.findFirst({
-      where: { role: 'LAB_ASSISTANT' }
-    })
-
-    const returnedById = labAssistant?.id || 'system'
+    // ✅ SECURITY FIX: Use the actual authenticated user for audit trail
+    const returnedById = session.user.id
 
     // Update the issued component status
     const updatedPart = await prisma.issuedComponent.update({
@@ -77,25 +88,23 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Create audit log if we have a lab assistant
-    if (labAssistant) {
-      await prisma.auditLog.create({
-        data: {
-          userId: labAssistant.id,
-          action: 'COMPONENT_RETURNED',
-          resource: 'ISSUED_COMPONENT',
-          details: JSON.stringify({
-            componentId: issuedComponent.componentId,
-            componentName: issuedComponent.component.name,
-            quantity: issuedComponent.quantity,
-            studentId: issuedComponent.studentId,
-            studentName: issuedComponent.student.name,
-            returnCondition: 'GOOD',
-            returnedAt: new Date().toISOString(),
-          })
-        }
-      })
-    }
+    // Create audit log with actual user
+    await prisma.auditLog.create({
+      data: {
+        userId: session.user.id,
+        action: 'COMPONENT_RETURNED',
+        resource: 'ISSUED_COMPONENT',
+        details: JSON.stringify({
+          componentId: issuedComponent.componentId,
+          componentName: issuedComponent.component.name,
+          quantity: issuedComponent.quantity,
+          studentId: issuedComponent.studentId,
+          studentName: issuedComponent.student.name,
+          returnCondition: 'GOOD',
+          returnedAt: new Date().toISOString(),
+        })
+      }
+    })
 
     // Create notification for student
     await prisma.notification.create({

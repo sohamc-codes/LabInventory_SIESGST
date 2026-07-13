@@ -21,8 +21,31 @@ export async function GET(request: NextRequest) {
     const prn = searchParams.get('prn')
 
     const where: any = { status: 'ACTIVE' }
+    
     if (prn) {
+      // ✅ SECURITY FIX: Students can only query their own PRN
+      if (session.user.role === 'STUDENT') {
+        // Fetch current user's PRN to validate
+        const currentUser = await prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { prn: true }
+        })
+        
+        // Reject if student tries to query someone else's PRN
+        if (currentUser?.prn !== prn) {
+          return NextResponse.json(
+            { error: 'Forbidden - You can only view your own issued components' },
+            { status: 403 }
+          )
+        }
+      }
+      // ✅ Staff members can query any PRN
       where.student = { prn }
+    } else {
+      // ✅ SECURITY FIX: If no PRN provided and user is STUDENT, auto-filter to their own data
+      if (session.user.role === 'STUDENT') {
+        where.studentId = session.user.id
+      }
     }
 
     const issuedParts = await prisma.issuedComponent.findMany({

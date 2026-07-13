@@ -1,643 +1,371 @@
-# IoT Lab Parts Management System - Complete Project Context
+# 📚 PROJECT CONTEXT - IoT Parts Management System (SIES GST Lab)
 
-## 📋 Project Overview
+## 🎯 Project Overview
 
-**Project Name**: SIES GST IoT Lab Inventory Management System  
-**Type**: Full-stack SaaS Web Application  
-**Purpose**: Smart inventory management platform for educational IoT labs with multi-tenant support, hybrid authentication, and real-time tracking  
-**GitHub**: https://github.com/sohamc-codes/LabInventory_SIESGST  
-**Production URL**: https://lab-inventory-siesgst-vercel.app
+**LabInventory** is a comprehensive IoT lab management system designed specifically for SIES GST's IoT Lab. It manages the complete lifecycle of electronic components from procurement to issuance, tracking, and return.
 
----
+### Purpose
+Help lab staff efficiently manage inventory and help students request, borrow, and return IoT components for their projects with full accountability and tracking.
 
-## 🏗️ Architecture & Tech Stack
-
-### **Frontend**
-- **Framework**: Next.js 15.0.3 (App Router)
-- **React**: 18.3.1
-- **TypeScript**: 5.9.3
-- **Styling**: Tailwind CSS 3.4.14
-- **UI Components**: 
-  - Radix UI (Dialog, Dropdown, Select, Switch, Tabs, Toast, Tooltip)
-  - Shadcn/ui component library
-  - Lucide React icons
-- **State Management**: 
-  - TanStack React Query 5.59.16
-  - React Hook Form 7.53.1 with Zod validation
-- **Animations**: Framer Motion 11.11.17
-- **Charts**: Recharts 2.12.7
-- **Themes**: next-themes 0.4.4
-
-### **Backend**
-- **Runtime**: Node.js >=18.17.0
-- **Framework**: Next.js API Routes (App Router)
-- **Authentication**: 
-  - NextAuth.js 5.0.0-beta.30
-  - Microsoft Entra ID (Azure AD) OAuth
-  - Credentials provider for lab staff
-- **Database ORM**: Prisma 5.22.0
-- **Database**: 
-  - **Production**: Supabase PostgreSQL with PgBouncer connection pooling
-  - **Development**: SQLite (prisma/dev.db)
-- **Validation**: Zod 3.23.8
-- **Password Hashing**: bcryptjs 3.0.3
-
-### **Deployment & Infrastructure**
-- **Hosting**: Vercel
-- **Database**: Supabase PostgreSQL
-- **Version Control**: Git + GitHub
-- **CI/CD**: Vercel automatic deployments
-
-### **Additional Libraries**
-- **CSV Parsing**: Papaparse 5.5.3
-- **QR Codes**: qrcode 1.5.4, html5-qrcode 2.3.8
-- **Date Handling**: date-fns 4.1.0
-- **Utilities**: clsx, tailwind-merge, use-debounce
-- **WebSockets**: ws 8.18.0
-- **AI Integration**: @google/generative-ai 0.24.1
-- **Payments**: Stripe 20.3.1, @stripe/stripe-js 8.7.0
+### Production URL
+**https://lab-inventory-siesgst.vercel.app**
 
 ---
 
-## 🗂️ Project Structure
+## 👥 USER ROLES (3 ROLES)
 
-```
-iot_parts_management-main/
-├── .kiro/                          # Kiro AI configuration
-├── .next/                          # Next.js build output
-├── node_modules/                   # Dependencies
-├── prisma/
-│   ├── schema.prisma              # Database schema
-│   └── dev.db                     # SQLite database (dev)
-├── public/                        # Static assets
-├── scripts/                       # Utility scripts
-│   ├── seed-demo-data.js
-│   ├── seed-lab-assistant.js
-│   └── setup.js
-├── src/
-│   ├── app/                       # Next.js App Router
-│   │   ├── (app)/                # Authenticated app layout
-│   │   │   ├── activity/         # Activity logs
-│   │   │   ├── admin/            # Admin panel
-│   │   │   ├── approvals/        # Request approvals
-│   │   │   ├── bulk-import/      # CSV import
-│   │   │   ├── dashboard/        # Role-based dashboards
-│   │   │   ├── integrations/     # Integrations
-│   │   │   ├── inventory/        # Inventory management
-│   │   │   ├── projects/         # Student projects
-│   │   │   ├── reports/          # Analytics reports
-│   │   │   ├── requests/         # Component requests
-│   │   │   ├── settings/         # Settings
-│   │   │   └── users/            # User management
-│   │   ├── (marketing)/          # Public marketing pages
-│   │   ├── api/                  # API routes
-│   │   │   ├── auth/             # Authentication
-│   │   │   ├── components/       # Component CRUD
-│   │   │   ├── requests/         # Request management
-│   │   │   ├── returns/          # Return processing
-│   │   │   ├── scanner/          # Barcode scanning
-│   │   │   └── users/            # User management
-│   │   │       ├── bulk-import/  # Bulk PRN import
-│   │   │       ├── onboard/      # Student onboarding
-│   │   │       ├── search/       # User search
-│   │   │       └── [id]/verify/  # PRN verification
-│   │   ├── auth/                 # Auth pages
-│   │   ├── issue-components/     # Issue components page
-│   │   ├── onboarding/           # Student onboarding
-│   │   ├── parts-issued/         # Parts return page
-│   │   └── users/import/         # Bulk import page
-│   ├── components/               # React components
-│   │   ├── features/            # Feature-specific components
-│   │   ├── layout/              # Layout components
-│   │   ├── parts-issued/        # Return components
-│   │   ├── ui/                  # UI primitives (Shadcn)
-│   │   └── users/               # User-related components
-│   ├── contexts/                # React contexts
-│   ├── lib/                     # Utility libraries
-│   │   ├── auth.ts             # NextAuth configuration
-│   │   ├── auth.config.ts      # Auth config
-│   │   ├── prisma.ts           # Prisma client
-│   │   └── utils.ts            # Utility functions
-│   ├── styles/                 # Global styles
-│   └── types/                  # TypeScript types
-├── .env                        # Environment variables
-├── .env.example               # Example env file
-├── .gitignore
-├── .vercelignore              # Vercel ignore rules
-├── next.config.js             # Next.js configuration
-├── package.json               # Dependencies
-├── tailwind.config.ts         # Tailwind configuration
-├── tsconfig.json              # TypeScript configuration
-├── vercel.json                # Vercel deployment config
-└── Documentation files:
-    ├── README.md
-    ├── BARCODE_SCANNING_GUIDE.md
-    ├── BULK_PRN_IMPORT_GUIDE.md
-    ├── BULK_PRN_IMPORT_IMPLEMENTATION.md
-    ├── CATEGORY_VALIDATION_FIX.md
-    ├── LOGIN_GUIDE.md
-    ├── PRN_LINKING_SOLUTION.md
-    ├── TRUST_BUT_VERIFY_IMPLEMENTATION.md
-    └── USER_ROLES_GUIDE.md
-```
+### 1. **STUDENT** 👨‍🎓
+**Primary Users**: All SIES GST students with Microsoft accounts
 
----
+**What they can do:**
+- Login using Microsoft OAuth (@gst.sies.edu.in email)
+- Browse available components inventory (view-only)
+- Create component requests with purpose and duration
+- View their own request history and status
+- View components currently issued to them
+- Track upcoming return dates
+- Self-onboard by linking their PRN (student ID)
 
-## 📊 Database Schema
+**What they CANNOT do:**
+- Approve/reject requests
+- Issue or return components physically
+- Manage inventory (add/edit/delete components)
+- View other students' requests
+- Access admin features
 
-### **Core Models**
+**Dashboard Features:**
+- Active requests count
+- Items currently issued
+- Overdue items warning
+- Upcoming returns with risk indicators
+- Personal reputation score
+- Request history
 
-#### **User**
-```prisma
-model User {
-  id             String    @id @default(cuid())
-  name           String?
-  email          String    @unique
-  emailVerified  DateTime?
-  image          String?
-  password       String?   // For lab staff credentials auth
-  role           String    @default("STUDENT") // STUDENT, LAB_ASSISTANT, HOD, ADMIN, OWNER
-  organizationId String?
-  prn            String?   @unique // Student PRN (8 alphanumeric)
-  department     String?
-  year           String?
-  isActive       Boolean   @default(true)
-  isPrnVerified  Boolean   @default(false) // PRN verified status
-  lastActivity   DateTime?
-  onboardedAt    DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-}
-```
 
-#### **Component**
-```prisma
-model Component {
-  id                String   @id @default(cuid())
-  organizationId    String
-  serialNumber      String?
-  qrCode            String?
-  name              String
-  category          String   // Accepts any string (custom categories allowed)
-  manufacturer      String?
-  model             String?
-  specifications    String?  @db.Text
-  totalStock        Int
-  availableStock    Int
-  condition         String   @default("NEW")
-  purchaseDate      DateTime?
-  cost              Float?
-  storageLocation   String?
-  imageUrl          String?
-  description       String?  @db.Text
-  isActive          Boolean  @default(true)
-  lastScanned       DateTime?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-}
-```
+### 2. **LAB_ASSISTANT** 🔧
+**Primary Users**: Lab staff members who manage day-to-day operations
 
-#### **ComponentRequest**
-```prisma
-model ComponentRequest {
-  id              String   @id @default(cuid())
-  studentId       String
-  componentId     String
-  projectId       String?
-  quantity        Int
-  purpose         String   @db.Text
-  expectedDuration Int     // in days
-  startDate       DateTime?
-  endDate         DateTime?
-  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED, ISSUED, RETURNED, OVERDUE, CLOSED
-  approvedBy      String?
-  approvedAt      DateTime?
-  rejectionReason String?  @db.Text
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-```
-
-#### **IssuedComponent**
-```prisma
-model IssuedComponent {
-  id              String   @id @default(cuid())
-  requestId       String?  @unique
-  studentId       String
-  componentId     String
-  quantity        Int
-  issuedBy        String?
-  issuedAt        DateTime @default(now())
-  expectedReturnDate DateTime
-  actualReturnDate DateTime?
-  returnedQuantity Int?
-  conditionOnIssue String
-  conditionOnReturn String?
-  notes           String?  @db.Text
-  isReturned      Boolean  @default(false)
-  status          String   @default("ACTIVE") // ACTIVE, RETURNED
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-```
-
-#### **AuditLog**
-```prisma
-model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String
-  action    String   // BULK_IMPORT_PRN, SELF_ONBOARD, VERIFY_STUDENT_PRN, etc.
-  resource  String
-  details   String?  @db.Text // JSON string
-  ipAddress String?
-  userAgent String?  @db.Text
-  createdAt DateTime @default(now())
-}
-```
-
-### **Supporting Models**
-- Organization (multi-tenant support)
-- OrganizationInvitation
-- Account (NextAuth)
-- Session (NextAuth)
-- Project
-- StockMovement
-- Notification
-- ComponentHistory
-- SpecialPartRequest
-
----
-
-## 🔐 Authentication & Authorization
-
-### **Authentication Methods**
-
-1. **Microsoft Entra ID (Azure AD) OAuth**
-   - For students and HODs
-   - Provides: Email, Name, Profile Picture
-   - Does NOT provide: PRN, Department, Year (linked separately)
-
-2. **Credentials Authentication**
-   - For lab assistants
-   - Email + Password
-   - Password hashed with bcryptjs
-
-### **User Roles**
-
-| Role | Access Level | Key Permissions |
-|------|--------------|----------------|
-| **STUDENT** | Basic | Request components, view own requests, manage projects |
-| **LAB_ASSISTANT** | Staff | Issue/return components, manage inventory, verify students |
-| **HOD** | Manager | Approve requests, manage users, view reports, verify students |
-| **ADMIN** | System Admin | Full system access, manage all users, system health |
-| **OWNER** | Organization Owner | Organization settings, billing, delete organization |
-
-### **Default Lab Assistant Credentials**
+**Login Method**: Credentials (Email + Password)
 - Email: `lab.staff@sies.edu`
 - Password: `lab123`
-- Created via: `scripts/seed-lab-assistant.js`
+
+**What they can do:**
+- Login using email/password (credentials-based)
+- Approve or reject student component requests
+- Issue components to students (physical handover)
+- Mark components as returned (physical collection)
+- Add new components to inventory
+- Update stock levels (when new parts arrive or get damaged)
+- Scan student PRN QR codes to look up student info
+- Verify student PRNs
+- Bulk import student data from CSV
+- View all pending requests across all departments
+- Generate reports and analytics
+
+**What they CANNOT do:**
+- Create component requests (they're staff, not students)
+- Change their own role
+- Delete organization settings
+
+**Dashboard Features:**
+- Pending approvals count
+- Total components in inventory
+- Low stock alerts
+- Recent activity feed
+- Quick approval actions
+
+
+### 3. **HOD** (Head of Department) 👔
+**Primary Users**: Department heads/faculty supervisors
+
+**Login Method**: Microsoft OAuth (@gst.sies.edu.in)
+
+**What they can do:**
+- Everything a LAB_ASSISTANT can do, PLUS:
+- View department-filtered data (only their department's students)
+- Approve/reject requests from their department students
+- Department-level analytics and reporting
+- Oversee lab operations
+
+**Unique Features:**
+- Department filtering: HODs only see requests from students in their department (e.g., Computer Engineering HOD only sees CE students' requests)
+- Higher-level analytics for their department
+- Can verify PRNs and manage users
+
+**Dashboard Features:**
+- Department-specific statistics
+- Pending approvals from their department
+- Department inventory usage trends
+- Student activity tracking
 
 ---
 
-## 🎯 Key Features
+## 🔐 AUTHENTICATION SYSTEM
 
-### **1. Inventory Management**
-- Real-time stock tracking
-- Component lifecycle management
-- Barcode/QR code scanning
-- Custom categories support
-- Storage location tracking
-- Condition monitoring
+### Authentication Methods
 
-### **2. Request Workflow**
-```
-Student Request → HOD Approval → Lab Assistant Issues → Student Returns → Lab Assistant Confirms
-```
+#### 1. **Microsoft OAuth (Azure AD SSO)**
+**Used by**: STUDENT, HOD
 
-- Request creation with purpose and duration
-- Multi-level approval system
-- Email notifications
-- Overdue tracking
-- Return scheduling
+**How it works:**
+1. User clicks "Sign in with Microsoft"
+2. Redirects to Microsoft login page
+3. User enters their @gst.sies.edu.in credentials
+4. Microsoft verifies and returns profile (name, email, profile picture)
+5. System checks if user exists in database
+6. If new user: Auto-create account with role = STUDENT (default)
+7. If existing user: Load their profile with stored role
+8. Create JWT session token
+9. Redirect to appropriate dashboard
 
-### **3. Bulk PRN Import System** ✨ (NEW)
-- CSV file upload with validation
-- Client-side parsing (Papaparse)
-- Batch processing
-- Duplicate detection
-- Error reporting
-- Sets `isPrnVerified: true`
-- Audit logging
-- Role-based access (LAB_ASSISTANT, HOD, ADMIN, OWNER)
+**Configuration:**
+- Client ID: Microsoft App Registration
+- Tenant ID: SIES GST Azure AD tenant
+- Scopes: `openid profile email User.Read`
 
-**CSV Format**:
-```csv
-email,prn,department,year
-student@sies.edu,123A7001,Computer Engineering,TE
-```
 
-### **4. Trust-but-Verify Onboarding** ✨ (NEW)
-- Self-service student registration
-- PRN format validation (8 alphanumeric)
-- Department and year selection
-- Sets `isPrnVerified: false` (requires verification)
-- Onboarding gatekeeper redirects students without PRN
-- Lab staff verification UI
-- One-click verification during scanning
-- Visual warnings for unverified students
+#### 2. **Credentials Authentication (Email + Password)**
+**Used by**: LAB_ASSISTANT only
 
-**Flow**:
-```
-New Student Login → Onboarding Form → Enter PRN → 
-First Scan → Lab Staff Sees Warning → Verify Student → 
-Future Scans (No Warning)
-```
+**How it works:**
+1. Lab assistant enters email and password on login page
+2. System queries database for user with that email
+3. Checks if user has a password field (LAB_ASSISTANT accounts only)
+4. Verifies password using bcrypt
+5. Creates JWT session token
+6. Redirects to lab-assistant dashboard
 
-### **5. Barcode Scanning**
-- USB barcode scanner support (acts as keyboard)
-- QR code scanning
-- PRN-based student lookup
-- Component tracking
-- Mobile camera scanning (planned)
+**Security:**
+- Passwords hashed with bcryptjs (10 salt rounds)
+- No plain-text storage
+- Only LAB_ASSISTANT accounts have passwords
 
-### **6. Dashboard & Analytics**
-- Role-specific dashboards
-- Real-time metrics
-- Component usage analytics
-- Overdue tracking
-- Activity logs
+**Why separate auth?**
+- Lab assistants are staff, not students
+- Don't have @gst.sies.edu.in email addresses
+- Need independent access not tied to college Microsoft accounts
 
-### **7. Multi-Tenant Architecture**
-- Organization-based isolation
-- Custom organization settings
-- User invitations
-- Role management per organization
+### Session Management
 
----
+**Strategy**: JWT (JSON Web Tokens)
 
-## 🔧 Environment Variables
-
-### **Required Variables**
-
-```bash
-# Database (Supabase PostgreSQL)
-DATABASE_URL="postgresql://postgres.xxx:password@xxx.pooler.supabase.com:6543/postgres?pgbouncer=true"
-DIRECT_URL="postgresql://postgres.xxx:password@xxx.pooler.supabase.com:5432/postgres"
-
-# NextAuth Configuration
-NEXTAUTH_SECRET="your-secret-key-here"
-NEXTAUTH_URL="https://your-domain.vercel.app"  # Production URL
-
-# Microsoft OAuth (Azure AD)
-MICROSOFT_CLIENT_ID="7ecdc423-fa1c-457e-ab9b-5873f6bfd087"
-MICROSOFT_CLIENT_SECRET="your-secret-here"
-MICROSOFT_TENANT_ID="405ddc34-d660-46e5-b52d-bfd0be156bb5"
-```
-
-### **Azure Redirect URIs**
-```
-http://localhost:3000/api/auth/callback/microsoft-entra-id  (Development)
-https://lab-inventory-siesgst-vercel.app/api/auth/callback/microsoft-entra-id  (Production)
-```
-
----
-
-## 📝 API Routes
-
-### **Authentication**
-- `POST /api/auth/signin` - Sign in
-- `POST /api/auth/signout` - Sign out
-- `POST /api/auth/callback/microsoft-entra-id` - OAuth callback
-
-### **Users**
-- `GET /api/users/search` - Search students (with `isPrnVerified` flag)
-- `POST /api/users/bulk-import` - Bulk import student PRNs
-- `POST /api/users/onboard` - Student self-onboarding
-- `POST /api/users/[id]/verify` - Verify student PRN
-
-### **Components**
-- `GET /api/components` - List components
-- `POST /api/components` - Create component
-- `PUT /api/components/[id]` - Update component
-- `DELETE /api/components/[id]` - Delete component
-
-### **Requests**
-- `GET /api/requests` - List requests (with filters)
-- `POST /api/requests` - Create request
-- `POST /api/requests/[id]/approve` - Approve request
-- `POST /api/requests/[id]/reject` - Reject request
-- `POST /api/requests/[id]/issue` - Issue component
-
-### **Scanner**
-- `POST /api/scanner/student` - Look up student by PRN (includes `isPrnVerified`)
-
-### **Returns**
-- `GET /api/parts-issued` - Get issued parts by PRN
-- `POST /api/returns/mark-returned` - Mark component as returned
-
----
-
-## 🚀 Deployment Configuration
-
-### **vercel.json**
-```json
+**JWT Token Contains:**
+```javascript
 {
-  "buildCommand": "prisma generate && next build",
-  "devCommand": "next dev",
-  "installCommand": "npm install",
-  "framework": "nextjs",
-  "regions": ["iad1"],
-  "functions": {
-    "app/api/**/*.ts": {
-      "maxDuration": 30
-    }
-  }
+  id: "user_id_here",
+  role: "STUDENT" | "LAB_ASSISTANT" | "HOD",
+  email: "user@example.com",
+  name: "User Name",
+  department: "Computer Engineering" | null,
+  prn: "2024001" | null,
+  isActive: true,
+  provider: "microsoft-entra-id" | "credentials"
 }
 ```
 
-### **.vercelignore**
-```
-.env
-.env.local
-node_modules
-.next
-*.log
-.DS_Store
-prisma/dev.db
-coverage
-.vscode
-__tests__
-```
+**Session Expiry**: 30 days
+**Token Refresh**: Automatic on page load if valid
+
 
 ---
 
-## 📱 User Interface
+## 🔒 AUTHORIZATION & ROUTE PROTECTION
 
-### **Design System**
-- **Colors**: Tailwind CSS default palette with custom primary colors
-- **Typography**: Geist Sans and Geist Mono fonts
-- **Components**: Shadcn/ui component library
-- **Dark Mode**: Supported via next-themes
-- **Responsive**: Mobile-first design
+### Middleware (`src/middleware.ts`)
 
-### **Key Pages**
+**How it works:**
+1. Every page request goes through middleware first
+2. Checks if user has valid session (JWT token)
+3. If no session → Redirect to `/auth/signin`
+4. If session exists → Check if route is allowed for their role
+5. If not allowed → Redirect to `/unauthorized`
+6. If allowed → Proceed to page
 
-1. **Dashboard** (`/dashboard/[role]`)
-   - Role-specific views
-   - Quick stats cards
-   - Recent activity
-   - Shortcuts
+### Route Access Matrix
 
-2. **Inventory Management** (`/inventory/manage`)
-   - Component list with search/filter
-   - Add/edit/delete components
-   - Stock level indicators
-   - Barcode scanning
+| Route | STUDENT | LAB_ASSISTANT | HOD |
+|-------|---------|---------------|-----|
+| `/auth/signin` | ✅ (public) | ✅ (public) | ✅ (public) |
+| `/dashboard/student` | ✅ | ❌ | ❌ |
+| `/dashboard/lab-assistant` | ❌ | ✅ | ❌ |
+| `/dashboard/hod` | ❌ | ❌ | ✅ |
+| `/requests/new` | ✅ | ❌ | ❌ |
+| `/requests/my-requests` | ✅ | ❌ | ❌ |
+| `/requests/all` | ❌ | ✅ | ✅ |
+| `/approvals` | ❌ | ✅ | ✅ |
+| `/inventory/manage` | ❌ | ✅ | ✅ |
+| `/issue-components` | ❌ | ✅ | ✅ |
+| `/scanner` | ❌ | ✅ | ✅ |
+| `/users` | ❌ | ✅ | ✅ |
+| `/parts-issued` | ✅ | ✅ | ✅ |
+| `/reports` | ❌ | ✅ | ✅ |
 
-3. **Issue Components** (`/issue-components`)
-   - Student lookup (barcode or manual)
-   - Verification warning for unverified students
-   - Approved requests list
-   - One-click issue
+### Automatic Role-Based Redirect
 
-4. **Parts Issued** (`/parts-issued`)
-   - Student lookup by PRN
-   - Verification status badge
-   - Active checkouts list
-   - One-click return
+When a user successfully logs in, they're automatically redirected:
+- `STUDENT` → `/dashboard/student`
+- `LAB_ASSISTANT` → `/dashboard/lab-assistant`
+- `HOD` → `/dashboard/hod`
 
-5. **Bulk Import** (`/users/import`)
-   - CSV file upload
-   - Preview table
-   - Validation errors
-   - Batch import
-
-6. **Onboarding** (`/onboarding`)
-   - PRN entry form
-   - Department selection
-   - Year selection
-   - Verification notice
-
----
-
-## 🧪 Testing & Quality
-
-### **Commands**
-```bash
-npm run dev          # Start dev server
-npm run build        # Production build
-npm run start        # Start production server
-npm run lint         # ESLint
-npm run type-check   # TypeScript check
-npm test             # Jest tests
+This happens in `middleware.ts`:
+```typescript
+if (pathname === '/' && session) {
+  const userRole = session.user?.role?.toLowerCase().replace('_', '-')
+  return NextResponse.redirect(new URL(`/dashboard/${userRole}`, req.url))
+}
 ```
 
-### **Database Commands**
-```bash
-npx prisma generate     # Generate Prisma client
-npx prisma db push      # Push schema to database
-npx prisma studio       # Open Prisma Studio
-npx prisma migrate dev  # Create migration
+
+---
+
+## 📦 CORE WORKFLOWS
+
+### 1. **Component Request Workflow** (Student → Lab Assistant)
+
+#### Step 1: Student Creates Request
+**Route**: `/requests/new`
+
+**Student Actions:**
+1. Browse available components
+2. Select a component
+3. Enter quantity needed
+4. Provide purpose (min 10 characters, e.g., "For IoT project - smart home automation")
+5. Specify expected duration (days)
+6. Optionally link to a project
+7. Submit request
+
+**Backend Validation** (`/api/requests POST`):
+- ✅ Check component exists
+- ✅ Check sufficient stock available
+- ✅ Check student has no overdue items
+- ✅ Validate quantity (1-100)
+- ✅ Validate purpose length (min 10 chars)
+- ✅ Validate duration (1-1095 days)
+
+**If validation passes:**
+- Create ComponentRequest with status = `PENDING`
+- Send notification to LAB_ASSISTANT role
+- Send notification to HOD role
+- Create audit log entry
+- Return success with request ID
+
+**If validation fails:**
+- Return error message (e.g., "Insufficient quantity" or "You have overdue items")
+
+
+#### Step 2: Lab Assistant Reviews Request
+**Route**: `/approvals`
+
+**Lab Assistant sees:**
+- List of all pending requests
+- Student name, PRN, department
+- Component requested
+- Quantity requested
+- Purpose
+- Expected duration
+- Request timestamp
+
+**Lab Assistant Actions:**
+1. Review request details
+2. Check stock availability (shown in real-time)
+3. Verify student information
+4. Make decision:
+   - **APPROVE**: Set status to `APPROVED`
+   - **REJECT**: Set status to `REJECTED`, provide rejection reason
+
+**API**: `PATCH /api/requests/[id]`
+
+**If APPROVED:**
+- Update request status to `APPROVED`
+- Set `approvedAt` timestamp
+- Send notification to student
+- Request moves to "Ready to Issue" queue
+
+**If REJECTED:**
+- Update request status to `REJECTED`
+- Store rejection reason
+- Send notification to student with reason
+- Request is closed
+
+
+#### Step 3: Lab Assistant Issues Components (Physical Handover)
+**Route**: `/issue-components`
+
+**Physical Process:**
+1. Student comes to lab with their student ID/PRN
+2. Lab assistant scans student PRN or searches manually
+3. System shows student's approved requests
+4. Lab assistant selects the request to fulfill
+5. Physically hands over components to student
+6. Student confirms receipt (optional signature/acknowledgment)
+7. Lab assistant marks as "Issued" in system
+
+**API**: `POST /api/parts-issued`
+
+**Backend Actions:**
+- Create `IssuedComponent` record
+- Set `issuedAt` timestamp
+- Calculate `expectedReturnDate` (issuedAt + expectedDuration)
+- Decrement `component.availableStock` by quantity
+- Update request status to `ISSUED`
+- Link issued item to original request
+- Create audit log
+- Send confirmation notification to student
+
+**Database Changes:**
+```
+ComponentRequest: status APPROVED → ISSUED
+Component: availableStock = availableStock - quantity
+IssuedComponent: NEW RECORD CREATED
+  - studentId
+  - componentId
+  - quantity
+  - issuedAt
+  - expectedReturnDate
+  - isReturned = false
 ```
 
----
 
-## 📚 Documentation Files
+#### Step 4: Student Returns Components
+**Route**: `/parts-issued`
 
-1. **BARCODE_SCANNING_GUIDE.md** - Barcode scanning implementation
-2. **BULK_PRN_IMPORT_GUIDE.md** - User guide for bulk import
-3. **BULK_PRN_IMPORT_IMPLEMENTATION.md** - Technical implementation details
-4. **TRUST_BUT_VERIFY_IMPLEMENTATION.md** - Onboarding system docs
-5. **PRN_LINKING_SOLUTION.md** - PRN linking analysis
-6. **USER_ROLES_GUIDE.md** - Complete role permissions matrix
-7. **LOGIN_GUIDE.md** - Login instructions for different roles
-8. **CATEGORY_VALIDATION_FIX.md** - Custom category support
+**Student View:**
+- See all components currently issued to them
+- View return deadline for each component
+- See "days until due" or "overdue by X days"
+- Risk indicators (NONE, LOW, MEDIUM, HIGH)
 
----
+**Physical Return Process:**
+1. Student brings components back to lab before deadline
+2. Lab assistant inspects components for damage
+3. Lab assistant marks as returned in system
+4. System updates stock levels
 
-## 🔄 Recent Implementation (Latest Commits)
+**API**: `POST /api/returns/mark-returned`
 
-### **Commit: 507688c** - "chore: Add Vercel deployment configuration"
-- Added `vercel.json` with build settings
-- Added `.vercelignore` for deployment optimization
-- Configured Prisma generation in build command
-- Set API function timeout to 30s
+**Backend Actions:**
+- Update `IssuedComponent`:
+  - `isReturned` = true
+  - `actualReturnDate` = current timestamp
+  - `returnedCondition` = condition assessed by lab assistant
+- Increment `component.availableStock` by returned quantity
+- Create audit log
+- Update student reputation score
+- Send confirmation notification
 
-### **Commit: f0cd660** - "feat: Add Bulk PRN Import and Trust-but-Verify Onboarding System"
-- Implemented bulk PRN import from CSV
-- Created self-service student onboarding
-- Added PRN verification system
-- Updated scanner APIs to include verification status
-- Added visual warnings for unverified students
-- Created comprehensive documentation
+**Database Changes:**
+```
+IssuedComponent: 
+  isReturned = false → true
+  actualReturnDate = NOW
+  
+Component: 
+  availableStock = availableStock + quantity
+```
 
-**Statistics**:
-- 20 files changed
-- 3,401 lines added
-- 7 new API endpoints
-- 5 documentation files
+**Student Metrics Updated:**
+- If returned on time: Reputation score increases
+- If overdue: Reputation score decreases
+- Average return time recalculated
+- Completion rate updated
 
----
-
-## 🐛 Known Issues & Current Status
-
-### **Deployment Status**
-- ❌ **Vercel deployments failing** (investigating)
-- ✅ All environment variables configured
-- ✅ Azure OAuth redirect URIs configured
-- ✅ Database schema migrated to PostgreSQL
-- ✅ Code compiled with zero TypeScript errors
-
-### **Potential Issues**
-1. Build command execution
-2. Prisma client generation on Vercel
-3. Edge runtime compatibility
-4. Memory/timeout during build
-
----
-
-## 🎯 Future Enhancements
-
-1. **Mobile App** - React Native companion app
-2. **Advanced Analytics** - AI-powered insights
-3. **Email Notifications** - Automated reminders
-4. **Mobile Camera Scanning** - QR code scanning via phone
-5. **Excel Import** - Support .xlsx files
-6. **Batch Verification** - Verify multiple students at once
-7. **Photo Upload** - ID card photo during verification
-8. **Rollback Feature** - Undo bulk imports
-9. **Export Feature** - Export data to CSV
-10. **Verification History** - Track who verified whom
-
----
-
-## 📞 Support & Contacts
-
-- **GitHub**: https://github.com/sohamc-codes/LabInventory_SIESGST
-- **Issues**: Submit via GitHub Issues
-- **Email**: lab.staff@sies.edu (Lab Assistant account)
-
----
-
-## 📄 License
-
-Private project for SIES Graduate School of Technology
-
----
-
-## 📊 Project Statistics
-
-- **Total Files**: 100+
-- **Total Lines of Code**: ~15,000+
-- **Components**: 50+
-- **API Routes**: 30+
-- **Database Tables**: 14
-- **Dependencies**: 60+
-- **Development Time**: 3+ months
-- **Team Size**: 1 developer
-
----
-
-**Last Updated**: June 10, 2026  
-**Version**: 3.0.0  
-**Status**: Production-ready (deployment in progress)

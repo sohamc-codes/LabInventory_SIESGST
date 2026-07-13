@@ -9,7 +9,12 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 
-export function PartsIssuedClient() {
+interface PartsIssuedClientProps {
+  userRole: string
+  userPrn?: string | null
+}
+
+export function PartsIssuedClient({ userRole, userPrn }: PartsIssuedClientProps) {
   const prnRef = useRef<HTMLInputElement>(null)
   const [prn, setPrn] = useState('')
   const [student, setStudent] = useState<any>(null)
@@ -17,9 +22,37 @@ export function PartsIssuedClient() {
   const [isVerifying, setIsVerifying] = useState(false)
   const [returningId, setReturningId] = useState<string | null>(null)
 
+  const isStudent = userRole === 'STUDENT'
+  const isStaff = ['LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(userRole)
+
   useEffect(() => {
-    prnRef.current?.focus()
-  }, [])
+    if (isStudent && userPrn) {
+      // Auto-load student's own parts
+      loadStudentParts(userPrn)
+    } else if (isStaff) {
+      prnRef.current?.focus()
+    }
+  }, [isStudent, userPrn])
+
+  const loadStudentParts = async (studentPrn: string) => {
+    try {
+      const studentRes = await fetch('/api/scanner/student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prn: studentPrn }),
+      })
+      const studentData = await studentRes.json()
+      if (studentRes.ok) {
+        setStudent(studentData.student)
+      }
+
+      const partsRes = await fetch(`/api/parts-issued?prn=${encodeURIComponent(studentPrn)}`)
+      const partsData = await partsRes.json()
+      setIssuedParts(partsData.issuedParts || [])
+    } catch (error) {
+      console.error('Error loading parts:', error)
+    }
+  }
 
   const lookupByPrn = async (e: FormEvent) => {
     e.preventDefault()
@@ -95,11 +128,12 @@ export function PartsIssuedClient() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Scan Student ID (PRN)</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {isStaff && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Scan Student ID (PRN)</CardTitle>
+          </CardHeader>
+          <CardContent>
           <form onSubmit={lookupByPrn} className="flex gap-2">
             <Input
               ref={prnRef}
@@ -166,11 +200,16 @@ export function PartsIssuedClient() {
           )}
         </CardContent>
       </Card>
+      )}
 
       <Card>
         <CardHeader>
-          <CardTitle>Active Checkouts</CardTitle>
-          <CardDescription>Click return on each item as it is handed back.</CardDescription>
+          <CardTitle>{isStudent ? "My Active Checkouts" : "Active Checkouts"}</CardTitle>
+          <CardDescription>
+            {isStudent 
+              ? "Components you currently have checked out"
+              : "Click return on each item as it is handed back."}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {issuedParts.length > 0 ? (
@@ -195,20 +234,26 @@ export function PartsIssuedClient() {
                       </TableCell>
                       <TableCell>{part.quantity}</TableCell>
                       <TableCell>
-                        <Button
-                          size="sm"
-                          onClick={() => handleReturn(part.id)}
-                          disabled={returningId === part.id}
-                        >
-                          {returningId === part.id ? (
-                            <>
-                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                              Returning...
-                            </>
-                          ) : (
-                            'Return'
-                          )}
-                        </Button>
+                        {isStaff ? (
+                          <Button
+                            size="sm"
+                            onClick={() => handleReturn(part.id)}
+                            disabled={returningId === part.id}
+                          >
+                            {returningId === part.id ? (
+                              <>
+                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                Returning...
+                              </>
+                            ) : (
+                              'Return'
+                            )}
+                          </Button>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">
+                            Active
+                          </Badge>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}

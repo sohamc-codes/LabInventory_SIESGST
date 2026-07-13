@@ -91,7 +91,7 @@ export default auth((req) => {
       return NextResponse.redirect(new URL('/unauthorized', req.url))
     }
 
-    if (pathname.startsWith('/parts-issued') && !['LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(userRole as string)) {
+    if (pathname.startsWith('/parts-issued') && !['STUDENT', 'LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(userRole as string)) {
       return NextResponse.redirect(new URL('/unauthorized', req.url))
     }
 

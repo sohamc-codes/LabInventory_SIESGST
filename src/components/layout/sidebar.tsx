@@ -52,7 +52,6 @@ export function Sidebar({ className }: SidebarProps) {
           { title: 'My Projects',       href: '/projects',              icon: FolderKanban },
           { title: 'Requests',          href: '/requests/my-requests',  icon: ClipboardList },
           { title: 'New Request',       href: '/requests/new',          icon: Plus },
-          { title: 'My Issued Items',   href: '/parts-issued',          icon: PackageCheck },
           { title: 'Special Requests',  href: '/requests/special-list', icon: Sparkles },
         ]
 

@@ -53,20 +53,10 @@ function QuickActionsSection() {
       iconBg: 'bg-white/10',
       shadow: 'shadow-emerald-500/20',
     },
-    {
-      title: 'Issued Items',
-      description: 'View issued parts',
-      icon: Package,
-      href: '/parts-issued',
-      gradient: 'from-orange-500 to-orange-600',
-      hoverGradient: 'hover:from-orange-600 hover:to-orange-700',
-      iconBg: 'bg-white/10',
-      shadow: 'shadow-orange-500/20',
-    },
   ]
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {actions.map((action) => (
         <Link key={action.title} href={action.href}>
           <div className={`relative rounded-xl p-5 bg-gradient-to-br ${action.gradient} ${action.hoverGradient} transition-all duration-300 cursor-pointer group shadow-lg ${action.shadow} hover:shadow-xl hover:scale-[1.02]`}>
@@ -442,28 +432,12 @@ export default function StudentDashboard() {
                                   </div>
                                 )}
                               </div>
-                              <Link href="/parts-issued">
-                                <Button variant="outline" size="sm" className="group w-full sm:w-auto">
-                                  <Eye className="h-3 w-3 mr-1" />
-                                  Details
-                                </Button>
-                              </Link>
                             </div>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
-                  {upcomingReturns.length > 0 && (
-                    <div className="mt-4">
-                      <Link href="/parts-issued">
-                        <Button variant="outline" className="w-full group">
-                          View All Items
-                          <ArrowUpRight className="h-4 w-4 ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             </div>

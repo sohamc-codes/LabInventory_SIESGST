@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { AlertCircle, CheckCircle } from 'lucide-react'
+import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 
 export function PartsIssuedClient() {
   const prnRef = useRef<HTMLInputElement>(null)
@@ -15,6 +15,7 @@ export function PartsIssuedClient() {
   const [student, setStudent] = useState<any>(null)
   const [issuedParts, setIssuedParts] = useState<any[]>([])
   const [isVerifying, setIsVerifying] = useState(false)
+  const [returningId, setReturningId] = useState<string | null>(null)
 
   useEffect(() => {
     prnRef.current?.focus()
@@ -64,6 +65,31 @@ export function PartsIssuedClient() {
       toast.error('Network error — please try again')
     } finally {
       setIsVerifying(false)
+    }
+  }
+
+  const handleReturn = async (partId: string) => {
+    setReturningId(partId)
+
+    try {
+      const res = await fetch('/api/returns/mark-returned', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partId }),
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        toast.error(data.error || 'Return failed')
+        return
+      }
+      
+      toast.success('Component returned successfully')
+      setIssuedParts((prev) => prev.filter((p) => p.id !== partId))
+    } catch {
+      toast.error('Network error — please try again')
+    } finally {
+      setReturningId(null)
     }
   }
 
@@ -121,8 +147,17 @@ export function PartsIssuedClient() {
                       disabled={isVerifying}
                       className="h-7 text-xs border-amber-300 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/30"
                     >
-                      <CheckCircle className="h-3 w-3 mr-1.5" />
-                      {isVerifying ? 'Verifying...' : 'Verify Student'}
+                      {isVerifying ? (
+                        <>
+                          <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                          Verifying...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-3 w-3 mr-1.5" />
+                          Verify Student
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -162,22 +197,17 @@ export function PartsIssuedClient() {
                       <TableCell>
                         <Button
                           size="sm"
-                          onClick={async () => {
-                            const res = await fetch('/api/returns/mark-returned', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ partId: part.id }),
-                            })
-                            const data = await res.json()
-                            if (!res.ok) {
-                              toast.error(data.error || 'Return failed')
-                              return
-                            }
-                            toast.success('Returned successfully')
-                            setIssuedParts((prev) => prev.filter((p) => p.id !== part.id))
-                          }}
+                          onClick={() => handleReturn(part.id)}
+                          disabled={returningId === part.id}
                         >
-                          Return
+                          {returningId === part.id ? (
+                            <>
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                              Returning...
+                            </>
+                          ) : (
+                            'Return'
+                          )}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -186,7 +216,25 @@ export function PartsIssuedClient() {
               </Table>
             </div>
           ) : (
-            <p className="text-sm text-gray-500">No active checkouts for this student.</p>
+            <div className="text-center py-12">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800">
+                <CheckCircle className="h-8 w-8 text-gray-400 dark:text-gray-600" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">All Clear!</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                {student 
+                  ? `${student.name} has no active checkouts`
+                  : 'Scan a student PRN to view their active checkouts'}
+              </p>
+              {!student && (
+                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg max-w-md mx-auto">
+                  <p className="text-xs text-blue-700 dark:text-blue-300 flex items-center justify-center gap-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="font-medium">Tip:</span> Use a barcode scanner for faster PRN lookup
+                  </p>
+                </div>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>

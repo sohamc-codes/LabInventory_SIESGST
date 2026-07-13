@@ -25,8 +25,8 @@ export default async function PartsIssuedPage() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header
-          title="Parts Issued"
-          subtitle="View and manage active issued components"
+          title="Return Components"
+          subtitle="Process returns and track active component checkouts"
         />
         <main className="flex-1 overflow-y-auto p-6">
           <PartsIssuedClient />

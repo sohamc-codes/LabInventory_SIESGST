@@ -61,7 +61,7 @@ export function Sidebar({ className }: SidebarProps) {
           { title: 'Pending Approvals', href: '/approvals',         icon: ShieldCheck },
           { title: 'Inventory',        href: '/inventory/manage',  icon: Package },
           { title: 'Issue Components', href: '/issue-components',  icon: PackageCheck },
-          { title: 'Parts Issued',     href: '/parts-issued',      icon: PackageCheck },
+          { title: 'Return Components', href: '/parts-issued',      icon: PackageCheck },
           { title: 'All Requests',     href: '/requests/all',      icon: ClipboardList },
           { title: 'Import PRN List',  href: '/users/import',      icon: FileUp },
         ]
@@ -82,7 +82,7 @@ export function Sidebar({ className }: SidebarProps) {
           ...baseItems,
           { title: 'Inventory',        href: '/inventory/manage',  icon: Package },
           { title: 'Issue Components', href: '/issue-components',  icon: PackageCheck },
-          { title: 'Parts Issued',     href: '/parts-issued',      icon: PackageCheck },
+          { title: 'Return Components', href: '/parts-issued',      icon: PackageCheck },
           { title: 'All Requests',     href: '/requests/all',      icon: ClipboardList },
           { title: 'User Management',  href: '/users',             icon: Users },
           { title: 'Import PRN List',  href: '/users/import',      icon: FileUp },

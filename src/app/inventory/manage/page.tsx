@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Plus } from 'lucide-react'
+import { Plus, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useComponents, useCreateComponent, useUpdateComponent } from '@/lib/hooks/use-components'
 
@@ -27,6 +27,10 @@ export default function ManageInventoryPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [selectedComponent, setSelectedComponent] = useState<any>(null)
   const [newTotalStock, setNewTotalStock] = useState(0)
+  const [isAdding, setIsAdding] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isAdjusting, setIsAdjusting] = useState(false)
   const [editFormData, setEditFormData] = useState({
     name: '',
     category: '',
@@ -88,6 +92,8 @@ export default function ManageInventoryPage() {
       return
     }
 
+    setIsAdding(true)
+
     try {
       await createComponentMutation.mutateAsync({
         name: newComponent.name,
@@ -96,6 +102,7 @@ export default function ManageInventoryPage() {
         totalStock: newComponent.totalStock,
       })
 
+      toast.success('Component added successfully')
       setNewComponent({
         name: '',
         category: 'SENSOR',
@@ -108,24 +115,33 @@ export default function ManageInventoryPage() {
       refetch()
     } catch (error) {
       console.error('Failed to add component:', error)
+      toast.error('Failed to add component')
+    } finally {
+      setIsAdding(false)
     }
   }
 
   const handleAdjustStock = async () => {
+    setIsAdjusting(true)
+
     try {
       await updateComponentMutation.mutateAsync({ totalStock: newTotalStock })
-      toast.success('Stock updated')
+      toast.success('Stock updated successfully')
       setShowAdjustDialog(false)
       setSelectedComponent(null)
       refetch()
     } catch (error) {
       toast.error('Failed to adjust stock')
+    } finally {
+      setIsAdjusting(false)
     }
   }
 
   const handleEditComponent = async () => {
     if (!selectedComponent) return
     
+    setIsEditing(true)
+
     try {
       const response = await fetch(`/api/components/${selectedComponent.id}`, {
         method: 'PATCH',
@@ -145,12 +161,16 @@ export default function ManageInventoryPage() {
       refetch()
     } catch (error) {
       toast.error('Failed to update component')
+    } finally {
+      setIsEditing(false)
     }
   }
 
   const handleDeleteComponent = async () => {
     if (!selectedComponent) return
     
+    setIsDeleting(true)
+
     try {
       const response = await fetch(`/api/components/${selectedComponent.id}`, {
         method: 'DELETE',
@@ -168,6 +188,8 @@ export default function ManageInventoryPage() {
       refetch()
     } catch (error) {
       toast.error('Failed to delete component')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -412,9 +434,16 @@ export default function ManageInventoryPage() {
             <Button 
               onClick={handleAddComponent} 
               className="w-full"
-              disabled={!newComponent.name || (isCustomCategory && !customCategoryInput.trim())}
+              disabled={!newComponent.name || (isCustomCategory && !customCategoryInput.trim()) || isAdding}
             >
-              Add Component
+              {isAdding ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                'Add Component'
+              )}
             </Button>
           </div>
         </DialogContent>
@@ -432,8 +461,18 @@ export default function ManageInventoryPage() {
               min={0}
               value={newTotalStock}
               onChange={(e) => setNewTotalStock(Number(e.target.value) || 0)}
+              disabled={isAdjusting}
             />
-            <Button onClick={handleAdjustStock} className="w-full">Update Total Stock</Button>
+            <Button onClick={handleAdjustStock} className="w-full" disabled={isAdjusting}>
+              {isAdjusting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                'Update Total Stock'
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -509,7 +548,16 @@ export default function ManageInventoryPage() {
                 onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
               />
             </div>
-            <Button onClick={handleEditComponent} className="w-full">Save Changes</Button>
+            <Button onClick={handleEditComponent} className="w-full" disabled={isEditing}>
+              {isEditing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -526,11 +574,18 @@ export default function ManageInventoryPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="flex-1">
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="flex-1" disabled={isDeleting}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteComponent} className="flex-1">
-              Delete
+            <Button variant="destructive" onClick={handleDeleteComponent} className="flex-1" disabled={isDeleting}>
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
             </Button>
           </div>
         </DialogContent>

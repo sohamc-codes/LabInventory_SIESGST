@@ -20,6 +20,7 @@ import {
   Filter,
   PackageCheck,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react'
 import { useRequests } from '@/lib/hooks/use-requests'
 import { formatDate, formatDateTime } from '@/lib/utils'
@@ -37,6 +38,7 @@ export default function ApprovalsPage() {
   const [issueNotes, setIssueNotes] = useState('')
   const [showIssueModal, setShowIssueModal] = useState(false)
   const [pendingIssueRequest, setPendingIssueRequest] = useState<any>(null)
+  const [isRejecting, setIsRejecting] = useState(false)
 
   const { data, isLoading, refetch } = useRequests({
     status: 'PENDING',
@@ -56,9 +58,11 @@ export default function ApprovalsPage() {
 
   const confirmReject = async () => {
     if (!selectedRequest || !rejectionReason.trim()) {
-      alert('Please provide a reason for rejection')
+      toast.error('Please provide a reason for rejection')
       return
     }
+
+    setIsRejecting(true)
 
     try {
       const response = await fetch(`/api/requests/${selectedRequest}`, {
@@ -76,12 +80,16 @@ export default function ApprovalsPage() {
         throw new Error('Failed to reject request')
       }
 
+      toast.success('Request rejected successfully')
       setShowRejectModal(false)
       setRejectionReason('')
       setSelectedRequest(null)
       refetch()
     } catch (error) {
       console.error('Error rejecting request:', error)
+      toast.error('Failed to reject request')
+    } finally {
+      setIsRejecting(false)
     }
   }
 
@@ -404,11 +412,20 @@ export default function ApprovalsPage() {
               <div className="flex gap-2">
                 <Button
                   onClick={confirmReject}
-                  disabled={!rejectionReason.trim()}
+                  disabled={!rejectionReason.trim() || isRejecting}
                   className="flex-1 bg-red-600 hover:bg-red-700"
                 >
-                  <XCircle className="h-4 w-4 mr-2" />
-                  Reject Request
+                  {isRejecting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Rejecting...
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Reject Request
+                    </>
+                  )}
                 </Button>
                 <Button
                   variant="outline"
@@ -418,6 +435,7 @@ export default function ApprovalsPage() {
                     setSelectedRequest(null)
                   }}
                   className="flex-1"
+                  disabled={isRejecting}
                 >
                   Cancel
                 </Button>

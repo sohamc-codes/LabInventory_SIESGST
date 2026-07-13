@@ -369,6 +369,60 @@ export default function NewRequestPage() {
               </Card>
             </div>
 
+            {/* Step Indicator */}
+            <Card className="border-2 border-blue-100 dark:border-blue-900/30 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between gap-4">
+                  {/* Step 1 */}
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-full ${selectedComponents.length === 0 ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'}`}>
+                      {selectedComponents.length === 0 ? '1' : <CheckCircle className="h-5 w-5" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Select Components</p>
+                      <p className="text-xs text-muted-foreground">Choose items you need</p>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="hidden sm:block">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                      <path d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-full ${selectedComponents.length === 0 ? 'bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400' : purpose.length >= 10 && (selectedProject !== 'OTHER' || (startDate && endDate)) ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'}`}>
+                      {selectedComponents.length === 0 ? '2' : (purpose.length >= 10 && (selectedProject !== 'OTHER' || (startDate && endDate))) ? <CheckCircle className="h-5 w-5" /> : '2'}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Fill Details</p>
+                      <p className="text-xs text-muted-foreground">Project & duration</p>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="hidden sm:block">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                      <path d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-full ${selectedComponents.length === 0 || (selectedProject === 'OTHER' && (purpose.length < 10 || !startDate || !endDate)) ? 'bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400' : 'bg-blue-600 text-white'}`}>
+                      {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : '3'}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Submit Request</p>
+                      <p className="text-xs text-muted-foreground">Complete your request</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Enhanced Component Selection */}
               <div className="lg:col-span-2 space-y-6">
@@ -645,22 +699,53 @@ export default function NewRequestPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-6 text-muted-foreground">
-                        <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No components selected</p>
-                        <p className="text-xs">Add components from the list to get started</p>
+                      <div className="text-center py-8 text-muted-foreground">
+                        <div className="relative">
+                          <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                          <div className="absolute -top-1 -right-8 animate-bounce">
+                            <svg className="h-6 w-6 text-blue-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                              <path d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                          </div>
+                        </div>
+                        <p className="text-sm font-medium mb-1">No components selected yet</p>
+                        <p className="text-xs text-muted-foreground">Browse components on the left and click "Add to Request"</p>
+                        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                          <p className="text-xs text-blue-700 dark:text-blue-300 flex items-center justify-center gap-2">
+                            <Info className="h-4 w-4" />
+                            <span className="font-medium">Tip:</span> Use search and filters to find components quickly
+                          </p>
+                        </div>
                       </div>
                     )}
                   </CardContent>
                 </Card>
 
                 {/* Enhanced Request Details */}
-                <Card>
+                <Card className={`${selectedComponents.length > 0 ? 'ring-2 ring-blue-500 ring-opacity-50 shadow-lg shadow-blue-500/20 transition-all duration-500' : 'opacity-60'}`}>
                   <CardHeader>
-                    <CardTitle>Request Details</CardTitle>
-                    <CardDescription>
-                      Provide information about your request
-                    </CardDescription>
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="flex items-center gap-2">
+                          Request Details
+                          {selectedComponents.length > 0 && (
+                            <Badge variant="default" className="bg-blue-600 text-xs animate-pulse">
+                              Step 2
+                            </Badge>
+                          )}
+                        </CardTitle>
+                        <CardDescription>
+                          {selectedComponents.length === 0 ? (
+                            <span className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                              <AlertCircle className="h-4 w-4" />
+                              Select components first to fill details
+                            </span>
+                          ) : (
+                            'Provide information about your request'
+                          )}
+                        </CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Project Selection */}

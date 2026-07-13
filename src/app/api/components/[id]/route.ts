@@ -27,25 +27,30 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const isStaff = ['LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(session.user.role)
+
     const component = await prisma.component.findUnique({
       where: { id },
       include: {
-        requests: {
-          include: {
-            student: {
-              select: {
-                name: true,
-                prn: true,
+        // ✅ SECURITY FIX: Only staff can see request history and stock movements
+        ...(isStaff && {
+          requests: {
+            include: {
+              student: {
+                select: {
+                  name: true,
+                  prn: true,
+                },
               },
             },
+            orderBy: { createdAt: 'desc' },
+            take: 10,
           },
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-        },
-        stockMovements: {
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-        },
+          stockMovements: {
+            orderBy: { createdAt: 'desc' },
+            take: 10,
+          },
+        }),
       },
     })
 
@@ -54,6 +59,12 @@ export async function GET(
         { error: 'Component not found' },
         { status: 404 }
       )
+    }
+
+    // ✅ SECURITY FIX: Sanitize response for students (hide sensitive data)
+    if (!isStaff) {
+      const { cost, ...publicData } = component
+      return NextResponse.json(publicData)
     }
 
     return NextResponse.json(component)

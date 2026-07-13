@@ -38,8 +38,19 @@ export async function GET(request: NextRequest) {
     }
 
     // Explicit studentId filter (for issuing page)
-    if (studentId && ['LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(session.user.role)) {
-      where.studentId = studentId
+    if (studentId) {
+      // ✅ SECURITY FIX: Explicit denial if student tries to query other students
+      if (session.user.role === 'STUDENT' && studentId !== session.user.id) {
+        return NextResponse.json(
+          { error: 'Forbidden - You can only view your own requests' },
+          { status: 403 }
+        )
+      }
+      
+      // ✅ Staff can filter by any studentId
+      if (['LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(session.user.role)) {
+        where.studentId = studentId
+      }
     }
 
     if (status) {

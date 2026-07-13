@@ -44,7 +44,8 @@ export async function PATCH(
     const { id } = await params
     const session = await auth()
 
-    if (!session || !['LAB_ASSISTANT', 'HOD', 'ADMIN'].includes(session.user.role)) {
+    // ✅ SECURITY FIX: Only HOD and ADMIN can change roles (removed LAB_ASSISTANT)
+    if (!session || !['HOD', 'ADMIN'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -67,6 +68,24 @@ export async function PATCH(
 
     const target = await prisma.user.findUnique({ where: { id } })
     if (!target) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+
+    // ✅ SECURITY FIX: Prevent privilege escalation beyond own level
+    const roleHierarchy: Record<ValidRole, number> = {
+      STUDENT: 0,
+      LAB_ASSISTANT: 1,
+      HOD: 2,
+      ADMIN: 3
+    }
+    
+    const currentUserLevel = roleHierarchy[session.user.role as ValidRole]
+    const newRoleLevel = roleHierarchy[parsed.data.role]
+    
+    if (newRoleLevel > currentUserLevel) {
+      return NextResponse.json(
+        { error: 'Cannot assign role higher than your own' },
+        { status: 403 }
+      )
+    }
 
     const updated = await prisma.user.update({
       where: { id },

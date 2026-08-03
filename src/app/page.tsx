@@ -20,6 +20,6 @@ export default async function HomePage() {
     }
   }
 
-  // Show marketing landing page
-  redirect('/landing')
+  // Show sign-in page
+  redirect('/auth/signin')
 }

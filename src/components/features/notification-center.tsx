@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { cn } from '@/lib/utils'
+import { useNotifications } from '@/lib/websocket'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -79,13 +80,19 @@ export function NotificationCenter() {
     }
   }, [])
 
-  // Fetch on open and poll every 60 s while open
+  const { lastMessage } = useNotifications()
+
+  // 1. Initial fetch on mount (so the bell icon shows correct unread count immediately)
   useEffect(() => {
-    if (!open) return
     fetchNotifications()
-    const interval = setInterval(fetchNotifications, 60_000)
-    return () => clearInterval(interval)
-  }, [open, fetchNotifications])
+  }, [fetchNotifications])
+
+  // 2. Observer Pattern: React to real-time server pushes instead of repeatedly polling
+  useEffect(() => {
+    if (lastMessage?.type === 'NOTIFICATION') {
+      fetchNotifications()
+    }
+  }, [lastMessage, fetchNotifications])
 
   const markAsRead = async (id: string) => {
     // Optimistic update

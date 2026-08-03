@@ -10,6 +10,7 @@ import { Header } from '@/components/layout/header'
 import { Sidebar } from '@/components/layout/sidebar'
 import { FeatureErrorBoundary } from '@/components/error-boundaries/feature-error-boundary'
 import Link from 'next/link'
+import { useNotifications } from '@/lib/websocket'
 import {
   Package,
   QrCode,
@@ -60,33 +61,41 @@ export default function LabAssistantDashboard() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Fetch real dashboard data
+  const { lastMessage } = useNotifications()
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch('/api/dashboard/lab-assistant')
+      if (response.ok) {
+        const data = await response.json()
+        setStats({
+          todayIssued: data.todayIssued,
+          pendingRequests: data.pendingRequests,
+          overdueReturns: data.overdueReturns,
+          lowStockItems: data.lowStockItems,
+        })
+        setTodayTransactions(data.recentTransactions || [])
+        setOverdueReturns(data.overdueItemsArray || [])
+        setLowStockAlerts(data.lowStockItemsArray || [])
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    }
+  }
+
+  // Initial fetch
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await fetch('/api/dashboard/lab-assistant')
-        if (response.ok) {
-          const data = await response.json()
-          setStats({
-            todayIssued: data.todayIssued,
-            pendingRequests: data.pendingRequests,
-            overdueReturns: data.overdueReturns,
-            lowStockItems: data.lowStockItems,
-          })
-          setTodayTransactions(data.recentTransactions || [])
-          setOverdueReturns(data.overdueItemsArray || [])
-          setLowStockAlerts(data.lowStockItemsArray || [])
-        }
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error)
+    fetchDashboardData()
+  }, [])
+
+  // Observer Pattern: Listen for real-time WebSocket push updates instead of polling
+  useEffect(() => {
+    if (lastMessage) {
+      if (['REQUEST_UPDATE', 'INVENTORY_UPDATE', 'LOW_STOCK_ALERT'].includes(lastMessage.type)) {
+        fetchDashboardData()
       }
     }
-
-    fetchDashboardData()
-    // Refresh every 60 seconds
-    const interval = setInterval(fetchDashboardData, 60000)
-    return () => clearInterval(interval)
-  }, [])
+  }, [lastMessage])
 
   // Redirect to signin if no session
   if (!session?.user) {

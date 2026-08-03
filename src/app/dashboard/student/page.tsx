@@ -9,6 +9,7 @@ import { Header } from '@/components/layout/header'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
+import { useNotifications } from '@/lib/websocket'
 import {
   Package,
   ClipboardList,
@@ -126,11 +127,21 @@ export default function StudentDashboard() {
     }
   }
 
+  const { lastMessage } = useNotifications()
+
+  // Initial fetch on mount
   useEffect(() => {
     fetchDashboardData()
-    const interval = setInterval(fetchDashboardData, 30000)
-    return () => clearInterval(interval)
   }, [])
+
+  // Observer Pattern: Refetch when relevant real-time push events arrive
+  useEffect(() => {
+    if (lastMessage) {
+      if (['REQUEST_UPDATE', 'INVENTORY_UPDATE'].includes(lastMessage.type)) {
+        fetchDashboardData()
+      }
+    }
+  }, [lastMessage])
 
   if (!session?.user) {
     return null

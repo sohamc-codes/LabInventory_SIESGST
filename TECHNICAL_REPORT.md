@@ -629,15 +629,11 @@ interface Project {
 interface Organization {
   id: string
   name: string
-  slug: string // unique subdomain
-  domain?: string // custom domain
-  plan: "STARTER" | "PROFESSIONAL" | "ENTERPRISE"
+  slug: string
+  domain?: string
   status: "ACTIVE" | "SUSPENDED" | "CANCELLED"
   maxUsers: number
   maxComponents: number
-  billingEmail?: string
-  subscriptionId?: string
-  trialEndsAt?: Date
   settings?: string // JSON
   createdAt: Date
   updatedAt: Date
@@ -649,23 +645,7 @@ interface Organization {
 - Organization-based filtering in all API queries
 - Database schema with organization relationships
 - Multi-tenant architecture foundation
-
-**Prepared Infrastructure (Not Active):**
-- Stripe payment integration (configured but not in active use)
-- Subscription plan structure defined
-- Billing models prepared for future implementation
-
-#### 5.8.2 Payment Integration (Infrastructure Ready)
-
-The system has Stripe payment infrastructure configured but not actively used:
-
-| Plan | Price | Max Users | Max Components | Features |
-|------|-------|-----------|----------------|----------|
-| **Starter** | Free | 50 | 500 | Basic analytics, Email support |
-| **Professional** | $99/mo | 500 | 5,000 | AI recommendations, API access, Priority support |
-| **Enterprise** | Custom | Unlimited | Unlimited | Custom integrations, Dedicated support, SLA |
-
-**Note:** Subscription and billing features are configured in the codebase (`src/lib/stripe.ts`) but the full SaaS billing workflow is not currently active. The system operates as a single-organization deployment.
+- Scalable for multiple institutions
 
 ---
 

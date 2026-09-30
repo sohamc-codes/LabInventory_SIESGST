@@ -86,18 +86,6 @@ Visit `http://localhost:3000` 🎉
 - **[SaaS Documentation](./docs/README_SAAS.md)** - Detailed SaaS features
 - **[Changelog](./CHANGELOG.md)** - Version history
 
-## 💰 Pricing Structure (Infrastructure Ready)
-
-The system has payment infrastructure configured but not actively billing:
-
-| Plan | Price | Users | Components | Features |
-|------|-------|-------|------------|----------|
-| **Starter** | Free | 50 | 500 | Basic analytics, Email support |
-| **Professional** | $99/mo | 500 | 5,000 | AI recommendations, API access |
-| **Enterprise** | Custom | Unlimited | Unlimited | Custom integrations, SLA |
-
-**Note:** Stripe integration is configured (`src/lib/stripe.ts`) but billing workflows are not currently active. System operates as single-organization deployment.
-
 ## 🏗️ Tech Stack
 
 - **Framework**: Next.js 15 (App Router)

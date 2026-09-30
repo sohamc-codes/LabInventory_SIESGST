@@ -15,7 +15,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Plus, Loader2 } from 'lucide-react'
+import { Plus, Loader2, Upload, Download } from 'lucide-react'
+import Link from 'next/link'
+import * as XLSX from 'xlsx'
 import { toast } from 'sonner'
 import { useComponents, useCreateComponent, useUpdateComponent } from '@/lib/hooks/use-components'
 
@@ -78,6 +80,42 @@ export default function ManageInventoryPage() {
         label: 'In Stock',
         className: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-800'
       }
+    }
+  }
+
+  const handleExport = (format: 'csv' | 'xlsx') => {
+    try {
+      if (filteredComponents.length === 0) {
+        toast.error('No components to export')
+        return
+      }
+
+      // Map to template format
+      const exportData = filteredComponents.map(c => ({
+        Name: c.name,
+        Category: c.category,
+        Quantity: c.totalStock,
+        Location: c.storageLocation || '',
+        Manufacturer: c.manufacturer || '',
+        Model: c.model || '',
+        Condition: c.condition || 'NEW',
+        Cost: c.cost || 0,
+        Description: c.description || ''
+      }))
+
+      const ws = XLSX.utils.json_to_sheet(exportData)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Inventory')
+
+      if (format === 'csv') {
+        XLSX.writeFile(wb, 'inventory-export.csv')
+      } else {
+        XLSX.writeFile(wb, 'inventory-export.xlsx')
+      }
+      toast.success(`Exported as ${format.toUpperCase()}`)
+    } catch (error) {
+      console.error('Export failed:', error)
+      toast.error('Failed to export inventory')
     }
   }
 
@@ -228,9 +266,20 @@ export default function ManageInventoryPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => void refetch()}>
-                      Refresh
+                  <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+                    <Button variant="outline" onClick={() => handleExport('csv')} title="Export to CSV">
+                      <Download className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">CSV</span>
+                    </Button>
+                    <Button variant="outline" onClick={() => handleExport('xlsx')} title="Export to Excel">
+                      <Download className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Excel</span>
+                    </Button>
+                    <Button variant="outline" asChild>
+                      <Link href="/bulk-import">
+                        <Upload className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Import</span>
+                      </Link>
                     </Button>
                     <Button onClick={() => setShowAddDialog(true)}>
                       <Plus className="h-4 w-4 mr-2" />

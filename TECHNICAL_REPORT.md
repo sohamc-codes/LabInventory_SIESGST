@@ -1,9 +1,9 @@
 # TECHNICAL REPORT: LabInventory - IoT Parts Management System
 
 **Submitted to:** Head of Department  
-**Institution:** [Your College Name]  
-**Department:** [Your Department]  
-**Project Team:** [Your Name(s)]  
+**Institution:** SIES Graduate School Of Technology  
+**Department:** Electronics and Computer Science
+**Project Developer:** Soham Chafale 
 **Date:** September 30, 2026  
 **Version:** 3.1.0  
 

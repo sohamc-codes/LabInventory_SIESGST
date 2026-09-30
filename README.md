@@ -17,7 +17,7 @@
 
 ## 🎯 Overview
 
-**LabInventory** is a market-ready SaaS platform for managing IoT components and lab equipment. Built with Next.js 15, it features multi-tenancy, subscription management, real-time notifications, and AI-powered recommendations.
+**LabInventory** is a modern web-based inventory management system for IoT components and lab equipment. Built with Next.js 15, it features multi-tenant architecture, real-time notifications, and AI-powered analytics for educational institutions and research laboratories.
 
 ### Perfect For
 - 🎓 Educational institutions
@@ -28,37 +28,31 @@
 
 ## ✨ Key Features
 
-### 🏢 Multi-Tenant SaaS
-- Complete organization workspaces with data isolation
-- Custom branded URLs for each organization
-- Team management with role-based access
-- Unlimited organizations support
-
-### 💳 Subscription Management
-- 3 pricing tiers: Starter (Free), Professional ($99/mo), Enterprise
-- 14-day free trial, no credit card required
-- Usage tracking and billing dashboard
-- Stripe integration ready
-
-### 🎨 Professional Marketing
-- Landing page with hero, features, pricing, testimonials
-- Legal pages (privacy, terms)
-- Contact forms and support channels
-- SEO optimized with meta tags and sitemaps
+### 🏢 Multi-Tenant Foundation
+- Organization-based data isolation
+- Scalable architecture for multiple institutions
+- Custom organization settings
+- Prepared for SaaS expansion
 
 ### 🔐 Enterprise Security
-- SSO integration (Microsoft Azure AD, Google)
-- Role-based access control (5 roles)
+- Hybrid authentication (Azure AD SSO, Google OAuth, Credentials)
+- Role-based access control (4 roles: Student, Lab Assistant, HOD, Admin)
 - Audit logs for compliance
-- Data encryption at rest and in transit
+- Data encryption and secure sessions
 
 ### 📊 Advanced Features
 - QR code tracking and scanning
 - Real-time WebSocket notifications
-- AI-powered component recommendations
+- AI-powered inventory analytics (Google Gemini)
 - Analytics dashboard with insights
 - Automated return management
 - RESTful API for integrations
+
+### 🎨 Professional Interface
+- Marketing pages (about, contact, privacy, terms, blog, changelog)
+- Mobile-responsive design
+- Modern UI with TailwindCSS + shadcn/ui
+- SEO optimized
 
 ## 🚀 Quick Start
 
@@ -92,13 +86,17 @@ Visit `http://localhost:3000` 🎉
 - **[SaaS Documentation](./docs/README_SAAS.md)** - Detailed SaaS features
 - **[Changelog](./CHANGELOG.md)** - Version history
 
-## 💰 Pricing
+## 💰 Pricing Structure (Infrastructure Ready)
+
+The system has payment infrastructure configured but not actively billing:
 
 | Plan | Price | Users | Components | Features |
 |------|-------|-------|------------|----------|
 | **Starter** | Free | 50 | 500 | Basic analytics, Email support |
 | **Professional** | $99/mo | 500 | 5,000 | AI recommendations, API access |
 | **Enterprise** | Custom | Unlimited | Unlimited | Custom integrations, SLA |
+
+**Note:** Stripe integration is configured (`src/lib/stripe.ts`) but billing workflows are not currently active. System operates as single-organization deployment.
 
 ## 🏗️ Tech Stack
 
@@ -165,16 +163,18 @@ npm run test:coverage # Coverage report
 npm run test:watch    # Watch mode
 ```
 
-## 📊 What's New in v3.0
+## 📊 What's New in v3.1
 
-- ✅ Multi-tenant architecture
-- ✅ Professional marketing website
-- ✅ Subscription management
-- ✅ Organization workspaces
-- ✅ Team collaboration
-- ✅ Enhanced SEO
-- ✅ Stripe integration ready
-- ✅ Production deployment guides
+- ✅ AI-powered inventory analytics with Google Gemini
+- ✅ Special parts request system
+- ✅ Project management with duration tracking
+- ✅ Enhanced request workflow with priorities
+- ✅ Real-time WebSocket notifications
+- ✅ Multi-tenant architecture foundation
+- ✅ Professional marketing pages
+- ✅ Payment infrastructure (Stripe configured)
+- ✅ Mobile-responsive interface
+- ✅ Production deployment ready
 
 See [CHANGELOG.md](./CHANGELOG.md) for details.
 

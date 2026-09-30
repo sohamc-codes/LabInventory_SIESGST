@@ -11,16 +11,16 @@
 
 ## EXECUTIVE SUMMARY
 
-LabInventory is a comprehensive, production-ready SaaS platform designed to revolutionize inventory management for IoT laboratories and educational institutions. The system addresses critical challenges in component tracking, request management, and resource optimization through modern web technologies and artificial intelligence.
+LabInventory is a comprehensive web-based inventory management system designed to revolutionize component tracking for IoT laboratories and educational institutions. The system addresses critical challenges in inventory management, request workflows, and resource optimization through modern web technologies and artificial intelligence.
 
 **Key Achievements:**
-- ✅ Multi-tenant architecture supporting unlimited organizations
-- ✅ AI-powered inventory analytics using Google Gemini
-- ✅ Real-time notifications via WebSocket connections
-- ✅ Complete authentication system with SSO support
-- ✅ Mobile-responsive interface with 101+ React components
-- ✅ Enterprise-grade security and role-based access control
-- ✅ Production deployment ready on multiple platforms
+- ✅ Multi-tenant architecture with organization-based data isolation
+- ✅ AI-powered inventory analytics using Google Gemini API
+- ✅ Real-time notifications via WebSocket implementation
+- ✅ Hybrid authentication system with SSO support (Azure AD, Google OAuth)
+- ✅ Mobile-responsive interface with 101 React components
+- ✅ Role-based access control (Student, Lab Assistant, HOD, Admin)
+- ✅ Deployment-ready with Docker and cloud platform support
 
 **Technology Stack:** Next.js 15, TypeScript 5.9, PostgreSQL, Prisma ORM, NextAuth.js v5, TailwindCSS, Google Gemini AI
 
@@ -71,14 +71,14 @@ The primary objectives of LabInventory are:
 ### 1.3 Scope
 
 The system encompasses:
-- **User Management**: Students, Lab Assistants, HODs, Admins, Organization Owners
+- **User Management**: Students, Lab Assistants, HODs, and Admins
 - **Inventory Management**: Component tracking, QR codes, stock movements
 - **Request System**: Component requests, approvals, issuance, and returns
 - **Project Management**: Link components to student projects
 - **Special Parts Requests**: Request parts not in current inventory
 - **Analytics Dashboard**: AI-powered insights and recommendations
 - **Notification System**: Real-time alerts via WebSocket
-- **Multi-tenancy**: Support for multiple organizations
+- **Multi-tenancy Foundation**: Organization-based data isolation (ready for expansion)
 
 ---
 
@@ -263,7 +263,7 @@ LabInventory addresses these challenges through:
 
 #### 5.1.1 Role-Based Access Control (RBAC)
 
-**Five User Roles:**
+**Four User Roles:**
 
 1. **STUDENT**
    - Browse available components
@@ -298,13 +298,6 @@ LabInventory addresses these challenges through:
    - Organization settings
    - Security configurations
    - System maintenance
-
-5. **OWNER**
-   - Organization creation
-   - Subscription management
-   - Team invitations
-   - Billing access
-   - Full administrative control
 
 #### 5.1.2 Authentication Methods
 
@@ -627,7 +620,7 @@ interface Project {
 - Special request status change
 - Project milestone reminders
 
-### 5.8 Multi-Tenancy (SaaS Features)
+### 5.8 Multi-Tenancy Foundation
 
 #### 5.8.1 Organization Management
 
@@ -651,14 +644,20 @@ interface Organization {
 }
 ```
 
-**Features:**
-- Complete data isolation
-- Custom branding
-- Team management
-- Usage limits enforcement
-- Billing integration ready
+**Implemented Features:**
+- Complete data isolation via organizationId
+- Organization-based filtering in all API queries
+- Database schema with organization relationships
+- Multi-tenant architecture foundation
 
-#### 5.8.2 Subscription Plans
+**Prepared Infrastructure (Not Active):**
+- Stripe payment integration (configured but not in active use)
+- Subscription plan structure defined
+- Billing models prepared for future implementation
+
+#### 5.8.2 Payment Integration (Infrastructure Ready)
+
+The system has Stripe payment infrastructure configured but not actively used:
 
 | Plan | Price | Max Users | Max Components | Features |
 |------|-------|-----------|----------------|----------|
@@ -666,11 +665,7 @@ interface Organization {
 | **Professional** | $99/mo | 500 | 5,000 | AI recommendations, API access, Priority support |
 | **Enterprise** | Custom | Unlimited | Unlimited | Custom integrations, Dedicated support, SLA |
 
-**Trial Period:**
-- 14 days free trial
-- No credit card required
-- Full feature access
-- Auto-notification before expiry
+**Note:** Subscription and billing features are configured in the codebase (`src/lib/stripe.ts`) but the full SaaS billing workflow is not currently active. The system operates as a single-organization deployment.
 
 ---
 
@@ -1518,19 +1513,18 @@ export async function DELETE(request: NextRequest) {
 
 #### 9.2.2 Permission Matrix
 
-| Action | Student | Lab Assistant | HOD | Admin | Owner |
-|--------|---------|---------------|-----|-------|-------|
-| Browse Components | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Request Components | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Create Components | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Edit Components | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Delete Components | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Approve Requests | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Issue Components | ❌ | ✅ | ✅ | ✅ | ✅ |
-| View Analytics | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Manage Users | ❌ | ❌ | ✅ | ✅ | ✅ |
-| System Settings | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Organization Settings | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Action | Student | Lab Assistant | HOD | Admin |
+|--------|---------|---------------|-----|-------|
+| Browse Components | ✅ | ✅ | ✅ | ✅ |
+| Request Components | ✅ | ✅ | ✅ | ✅ |
+| Create Components | ❌ | ✅ | ✅ | ✅ |
+| Edit Components | ❌ | ✅ | ✅ | ✅ |
+| Delete Components | ❌ | ✅ | ✅ | ✅ |
+| Approve Requests | ❌ | ✅ | ✅ | ✅ |
+| Issue Components | ❌ | ✅ | ✅ | ✅ |
+| View Analytics | ❌ | ✅ | ✅ | ✅ |
+| Manage Users | ❌ | ❌ | ✅ | ✅ |
+| System Settings | ❌ | ❌ | ❌ | ✅ |
 
 ### 9.3 Data Security
 

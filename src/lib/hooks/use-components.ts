@@ -8,6 +8,7 @@ interface Component {
   name: string
   category: string
   manufacturer?: string
+  model?: string
   specifications?: string
   totalStock: number
   availableStock: number
@@ -82,6 +83,7 @@ interface CreateComponentData {
   name: string
   category: string
   manufacturer?: string
+  model?: string
   specifications?: string
   totalStock: number
   condition?: string
@@ -126,6 +128,7 @@ interface UpdateComponentData {
   name?: string
   category?: string
   manufacturer?: string
+  model?: string
   specifications?: string
   totalStock?: number
   condition?: string

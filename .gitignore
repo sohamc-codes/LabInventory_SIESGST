@@ -65,3 +65,5 @@ setup-microsoft-auth.js
 *.backup
 *.bak
 *.old
+
+.kiro

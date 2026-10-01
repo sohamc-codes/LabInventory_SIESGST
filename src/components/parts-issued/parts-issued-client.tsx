@@ -32,7 +32,7 @@ export function PartsIssuedClient({ userRole, userPrn }: PartsIssuedClientProps)
     } else if (isStaff) {
       prnRef.current?.focus()
     }
-  }, [isStudent, userPrn])
+  }, [isStudent, userPrn, isStaff])
 
   const loadStudentParts = async (studentPrn: string) => {
     try {

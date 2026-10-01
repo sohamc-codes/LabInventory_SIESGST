@@ -106,7 +106,7 @@ export default function NewRequestPage() {
   // Update duration when dates change
   useEffect(() => {
     calculateDuration()
-  }, [startDate, endDate])
+  }, [startDate, endDate, calculateDuration])
 
   const categories = ['ALL', 'MICROCONTROLLER', 'SENSOR', 'BREADBOARD', 'MOTOR', 'DISPLAY', 'IC', 'WIRE']
 
